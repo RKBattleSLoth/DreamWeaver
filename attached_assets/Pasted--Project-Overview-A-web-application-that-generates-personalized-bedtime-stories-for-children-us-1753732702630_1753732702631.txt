@@ -1,0 +1,53 @@
+## Project Overview
+
+A web application that generates personalized bedtime stories for children using AI-powered text generation and image creation. The app creates unique, age-appropriate stories based on user inputs and generates accompanying illustrations to create an engaging, interactive reading experience.
+
+## Core Concept
+
+Parents and caregivers can create custom bedtime stories tailored specifically to their child's interests, age, and preferences. The application combines OpenRouter's language models for story generation with Replicate's image generation capabilities to produce complete, illustrated stories that feel personal and magical for each child.
+
+## Target Users
+
+**Primary Users**: Parents, guardians, and caregivers of children ages 3-12
+**Secondary Users**: Children who will interact with the generated stories
+**Use Cases**: Bedtime routines, entertainment during travel, educational storytelling, building reading habits
+
+## Core Features
+
+### 1. Personalized Story Generation
+- **Custom Character Creation**: Users can define main characters with specific names, appearances, personality traits, and backgrounds
+- **Theme Selection**: Choose from various story genres including adventure, fairy tale, educational, friendship, fantasy, and real-world scenarios
+- **Interest Integration**: Incorporate the child's specific interests (dinosaurs, space, animals, vehicles, sports, etc.)
+- **Age-Appropriate Content**: Automatically adjust vocabulary, complexity, and themes based on the child's age
+- **Story Length Options**: Generate short (5-minute), medium (10-minute), or long (15-minute) stories based on bedtime needs
+- **Moral Lessons**: Optional integration of specific values or lessons (sharing, kindness, perseverance, etc.)
+
+### 2. AI-Powered Illustration System
+- **Scene-Based Images**: Generate 3-5 illustrations per story that match key scenes and moments
+- **Character Consistency**: Maintain consistent character appearance and style throughout all images in a story
+- **Child-Friendly Art Styles**: Multiple art style options including watercolor, cartoon, digital illustration, and storybook styles
+- **Contextual Imagery**: Images that directly relate to and enhance the story narrative
+- **Safety-First Generation**: All images are filtered to ensure child-appropriate content
+
+### 3. Child Profile Management
+- **Multiple Child Support**: Parents can create and manage profiles for multiple children
+- **Individual Preferences**: Each child profile stores unique interests, favorite themes, and story history
+- **Age-Based Customization**: Automatic content adjustment based on each child's age and developmental stage
+- **Favorite Characters**: Save and reuse beloved characters across multiple stories
+- **Reading Level Tracking**: Monitor and adjust story complexity as children grow
+
+### 4. Story Library and Management
+- **Personal Collection**: Save and organize all generated stories in a personal library
+- **Favorites System**: Mark beloved stories for easy access during bedtime routines
+- **Story History**: Track when stories were created and last read
+- **Search and Filter**: Find stories by theme, character, length, or creation date
+- **Story Sharing**: Share favorite stories with family members or friends (with privacy controls)
+
+### 5. Reading Experience Enhancement
+- **Interactive Story Display**: Clean, readable interface optimized for bedtime reading
+- **Night Mode**: Dark theme option for low-light reading environments
+- **Text Size Control**: Adjustable font sizes for comfortable reading
+- **Image Gallery**: View all story illustrations in a dedicated gallery mode
+- **Read-Aloud Friendly**: Format optimized for parents reading stories aloud
+```
+
