@@ -1,9 +1,10 @@
 import { Link, useLocation } from "wouter";
 import { useTheme } from "next-themes";
-import { Moon, Sun, BookOpen, User, Menu } from "lucide-react";
+import { Moon, Sun, BookOpen, User, Menu, LogOut } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { useActiveChildProfile } from "@/hooks/use-child-profiles";
+import { useAuth } from "@/hooks/use-auth";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -14,9 +15,10 @@ import {
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 
 export default function Navigation() {
-  const [location] = useLocation();
+  const [location, setLocation] = useLocation();
   const { theme, setTheme } = useTheme();
   const { data: activeProfile } = useActiveChildProfile();
+  const { user, logout } = useAuth();
 
   const navItems = [
     { href: "/", label: "Home", icon: "🏠" },
@@ -80,38 +82,73 @@ export default function Navigation() {
               <span className="sr-only">Toggle theme</span>
             </Button>
 
-            {/* Active Profile */}
-            {activeProfile && (
+            {/* User Menu */}
+            {user ? (
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
                   <Button variant="ghost" className="flex items-center space-x-2 bg-gradient-to-r from-purple-100 to-pink-100 dark:from-purple-900/30 dark:to-pink-900/30 px-3 py-2 rounded-full hover:from-purple-200 hover:to-pink-200 dark:hover:from-purple-900/50 dark:hover:to-pink-900/50">
-                    <Avatar className="w-8 h-8">
-                      <AvatarImage src={activeProfile.avatarUrl || undefined} alt={activeProfile.name} />
-                      <AvatarFallback className="bg-gradient-to-r from-amber-400 to-orange-400 text-white text-sm font-semibold">
-                        {activeProfile.name.charAt(0).toUpperCase()}
-                      </AvatarFallback>
-                    </Avatar>
-                    <span className="text-sm font-medium text-gray-700 dark:text-gray-300 hidden sm:inline">
-                      {activeProfile.name}'s Stories
-                    </span>
+                    {activeProfile ? (
+                      <>
+                        <Avatar className="w-8 h-8">
+                          <AvatarImage src={activeProfile.avatarUrl || undefined} alt={activeProfile.name} />
+                          <AvatarFallback className="bg-gradient-to-r from-amber-400 to-orange-400 text-white text-sm font-semibold">
+                            {activeProfile.name.charAt(0).toUpperCase()}
+                          </AvatarFallback>
+                        </Avatar>
+                        <span className="text-sm font-medium text-gray-700 dark:text-gray-300 hidden sm:inline">
+                          {activeProfile.name}'s Stories
+                        </span>
+                      </>
+                    ) : (
+                      <>
+                        <Avatar className="w-8 h-8">
+                          <AvatarFallback className="bg-gradient-to-r from-purple-400 to-pink-400 text-white text-sm font-semibold">
+                            {user.email.charAt(0).toUpperCase()}
+                          </AvatarFallback>
+                        </Avatar>
+                        <span className="text-sm font-medium text-gray-700 dark:text-gray-300 hidden sm:inline">
+                          {user.email}
+                        </span>
+                      </>
+                    )}
                   </Button>
                 </DropdownMenuTrigger>
                 <DropdownMenuContent align="end" className="w-56">
+                  <div className="px-2 py-1.5 text-sm text-gray-500 dark:text-gray-400">
+                    {user.email}
+                  </div>
+                  <DropdownMenuSeparator />
                   <DropdownMenuItem asChild>
                     <Link href="/profiles">
                       <User className="mr-2 h-4 w-4" />
                       Manage Profiles
                     </Link>
                   </DropdownMenuItem>
-                  <DropdownMenuSeparator />
                   <DropdownMenuItem asChild>
                     <Link href="/library">
                       <BookOpen className="mr-2 h-4 w-4" />
                       Story Library
                     </Link>
                   </DropdownMenuItem>
+                  <DropdownMenuSeparator />
+                  <DropdownMenuItem
+                    onClick={async () => {
+                      await logout();
+                      setLocation("/login");
+                    }}
+                    className="text-red-600 dark:text-red-400 cursor-pointer"
+                  >
+                    <LogOut className="mr-2 h-4 w-4" />
+                    Logout
+                  </DropdownMenuItem>
                 </DropdownMenuContent>
               </DropdownMenu>
+            ) : (
+              <Link href="/login">
+                <Button variant="default" size="sm">
+                  Login
+                </Button>
+              </Link>
             )}
 
             {/* Mobile Menu */}

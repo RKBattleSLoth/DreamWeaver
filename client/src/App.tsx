@@ -1,44 +1,37 @@
-import { Switch, Route } from "wouter";
-import { queryClient } from "./lib/queryClient";
-import { QueryClientProvider } from "@tanstack/react-query";
-import { Toaster } from "@/components/ui/toaster";
-import { TooltipProvider } from "@/components/ui/tooltip";
-import { ThemeProvider } from "next-themes";
-import Navigation from "@/components/navigation";
-import Home from "@/pages/home";
-import StoryCreator from "@/pages/story-creator";
-import StoryReader from "@/pages/story-reader";
-import Library from "@/pages/library";
-import Profiles from "@/pages/profiles";
-import NotFound from "@/pages/not-found";
-
-function Router() {
-  return (
-    <div className="min-h-screen">
-      <Navigation />
-      <Switch>
-        <Route path="/" component={Home} />
-        <Route path="/create" component={StoryCreator} />
-        <Route path="/story/:id" component={StoryReader} />
-        <Route path="/library" component={Library} />
-        <Route path="/profiles" component={Profiles} />
-        <Route component={NotFound} />
-      </Switch>
-    </div>
-  );
-}
+import { Router, Route, Switch } from 'wouter'
+import LoginPage from './pages/LoginPage'
+import RegisterPage from './pages/RegisterPage'
+import DashboardPage from './pages/DashboardPage'
+import ChildProfilesPage from './pages/ChildProfilesPage'
+import { Stories } from './pages/Stories'
+import { SupabaseAuthProvider } from './lib/supabase-auth'
 
 function App() {
   return (
-    <QueryClientProvider client={queryClient}>
-      <ThemeProvider attribute="class" defaultTheme="light" enableSystem>
-        <TooltipProvider>
-          <Toaster />
-          <Router />
-        </TooltipProvider>
-      </ThemeProvider>
-    </QueryClientProvider>
-  );
+    <SupabaseAuthProvider>
+      <Router>
+        <div className="min-h-screen bg-background">
+          <Switch>
+            <Route path="/login" component={LoginPage} />
+            <Route path="/register" component={RegisterPage} />
+            <Route path="/profiles" component={ChildProfilesPage} />
+            <Route path="/stories" component={Stories} />
+            <Route path="/" component={DashboardPage} />
+            
+            {/* 404 */}
+            <Route>
+              <div className="flex items-center justify-center min-h-screen">
+                <div className="text-center">
+                  <h1 className="text-4xl font-bold text-muted-foreground mb-4">404</h1>
+                  <p className="text-muted-foreground">Page not found</p>
+                </div>
+              </div>
+            </Route>
+          </Switch>
+        </div>
+      </Router>
+    </SupabaseAuthProvider>
+  )
 }
 
-export default App;
+export default App

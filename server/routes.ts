@@ -3,6 +3,8 @@ import { createServer, type Server } from "http";
 import { storage } from "./storage";
 import { insertChildProfileSchema, insertStoryGenerationRequestSchema } from "@shared/schema";
 import { z } from "zod";
+import { authenticateToken, createUser, verifyUser, generateToken, type AuthRequest } from "./auth";
+import cookieParser from "cookie-parser";
 
 // OpenRouter API configuration
 const OPENROUTER_API_KEY = process.env.OPENROUTER_API_KEY || process.env.VITE_OPENROUTER_API_KEY || "";
@@ -111,7 +113,86 @@ async function generateIllustrationsWithReplicate(prompts: string[]): Promise<st
 }
 
 export async function registerRoutes(app: Express): Promise<Server> {
-  // Child Profile routes
+  // Add cookie parser middleware
+  app.use(cookieParser());
+
+  // Authentication routes
+  app.post("/api/auth/register", async (req, res) => {
+    try {
+      const { email, password } = req.body;
+      
+      if (!email || !password) {
+        return res.status(400).json({ message: "Email and password required" });
+      }
+
+      const user = await createUser(email, password);
+      const token = generateToken(user.id);
+      
+      res.cookie("authToken", token, {
+        httpOnly: true,
+        secure: process.env.NODE_ENV === "production",
+        sameSite: "lax",
+        maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
+      });
+
+      res.json({
+        user: {
+          id: user.id,
+          email: user.email,
+          createdAt: user.created_at,
+        },
+      });
+    } catch (error: any) {
+      console.error("Registration error:", error);
+      res.status(400).json({ message: error.message || "Registration failed" });
+    }
+  });
+
+  app.post("/api/auth/login", async (req, res) => {
+    try {
+      const { email, password } = req.body;
+      
+      if (!email || !password) {
+        return res.status(400).json({ message: "Email and password required" });
+      }
+
+      const user = await verifyUser(email, password);
+      const token = generateToken(user.id);
+      
+      res.cookie("authToken", token, {
+        httpOnly: true,
+        secure: process.env.NODE_ENV === "production",
+        sameSite: "lax",
+        maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
+      });
+
+      res.json({
+        user: {
+          id: user.id,
+          email: user.email,
+          createdAt: user.created_at,
+        },
+      });
+    } catch (error: any) {
+      console.error("Login error:", error);
+      res.status(401).json({ message: error.message || "Login failed" });
+    }
+  });
+
+  app.post("/api/auth/logout", (req, res) => {
+    res.clearCookie("authToken");
+    res.json({ message: "Logged out successfully" });
+  });
+
+  app.get("/api/auth/me", authenticateToken, async (req: AuthRequest, res) => {
+    res.json({
+      id: req.user!.userId,
+      email: req.user!.email,
+      createdAt: new Date().toISOString(),
+    });
+  });
+
+  // Child Profile routes - temporarily unprotected for development
   app.get("/api/child-profiles", async (req, res) => {
     try {
       const profiles = await storage.getAllChildProfiles();
@@ -133,7 +214,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.post("/api/child-profiles", async (req, res) => {
+  app.post("/api/child-profiles", authenticateToken, async (req: AuthRequest, res) => {
     try {
       const profileData = insertChildProfileSchema.parse(req.body);
       const profile = await storage.createChildProfile(profileData);
@@ -146,7 +227,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.put("/api/child-profiles/:id", async (req, res) => {
+  app.put("/api/child-profiles/:id", authenticateToken, async (req: AuthRequest, res) => {
     try {
       const { id } = req.params;
       const updates = insertChildProfileSchema.partial().parse(req.body);
@@ -165,7 +246,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.post("/api/child-profiles/:id/activate", async (req, res) => {
+  app.post("/api/child-profiles/:id/activate", authenticateToken, async (req: AuthRequest, res) => {
     try {
       const { id } = req.params;
       await storage.setActiveChildProfile(id);
@@ -227,7 +308,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.post("/api/stories/:id/favorite", async (req, res) => {
+  app.post("/api/stories/:id/favorite", authenticateToken, async (req: AuthRequest, res) => {
     try {
       const { id } = req.params;
       const story = await storage.toggleStoryFavorite(id);
@@ -242,7 +323,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.post("/api/stories/:id/read", async (req, res) => {
+  app.post("/api/stories/:id/read", authenticateToken, async (req: AuthRequest, res) => {
     try {
       const { id } = req.params;
       const story = await storage.markStoryAsRead(id);
@@ -258,7 +339,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Story Generation routes
-  app.post("/api/generate-story", async (req, res) => {
+  app.post("/api/generate-story", authenticateToken, async (req: AuthRequest, res) => {
     try {
       const requestData = insertStoryGenerationRequestSchema.parse(req.body);
       
@@ -280,7 +361,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.get("/api/generate-story/:requestId/status", async (req, res) => {
+  app.get("/api/generate-story/:requestId/status", authenticateToken, async (req: AuthRequest, res) => {
     try {
       const { requestId } = req.params;
       const request = await storage.getStoryGenerationRequest(requestId);
