@@ -73,19 +73,30 @@ router.get('/:id',
 router.post('/generate',
   validateBody(storySchemas.generate),
   async (req: Request<{}, ApiResponse, GenerateStoryRequest>, res: Response) => {
+    console.log('Story generation request:', {
+      userId: req.user!.id,
+      body: req.body
+    });
+    
     try {
       // Get active child profile if not specified
       let childProfile = null;
       if (!req.body.child_profile_id) {
+        console.log('No child_profile_id provided, getting active profile...');
         childProfile = await getActiveChildProfile(req.user!.id);
+      } else {
+        console.log('Using provided child_profile_id:', req.body.child_profile_id);
       }
 
+      console.log('Calling generateAndSaveStory...');
       const story = await generateAndSaveStory(
         req.user!.id,
         childProfile,
         req.body,
         req.authToken!
       );
+      
+      console.log('Story generated successfully:', story.id);
       
       res.status(201).json({
         success: true,

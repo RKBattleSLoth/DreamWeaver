@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { StoryGenerator } from '../components/StoryGenerator';
 import { StoryList } from '../components/StoryList';
 import { StoryViewer } from '../components/StoryViewer';
-import type { Story } from 'shared/types';
+import type { Story } from '../shared/types';
 
 export function Stories() {
   const [activeTab, setActiveTab] = useState<'generate' | 'browse'>('browse');

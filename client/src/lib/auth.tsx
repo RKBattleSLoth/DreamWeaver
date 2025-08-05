@@ -1,6 +1,6 @@
 import React, { createContext, useContext, useState, useEffect } from 'react'
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
-import { User, LoginRequest, RegisterRequest, AuthResponse } from 'shared/types'
+import { User, LoginRequest, RegisterRequest, AuthResponse } from '../shared/types'
 import { api } from './api'
 
 interface AuthContextType {

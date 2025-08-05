@@ -39,16 +39,29 @@ export async function generateAndSaveStory(
   params: GenerateStoryRequest,
   authToken: string
 ): Promise<Story> {
+  console.log('generateAndSaveStory called with:', {
+    userId,
+    childProfileId: childProfile?.id,
+    params
+  });
+
   // If no child profile specified but we have an active one, use it
   if (!childProfile && params.child_profile_id) {
-    const { data } = await supabaseAdmin
+    console.log('Fetching child profile from database...');
+    const { data, error } = await supabaseAdmin
       .from('child_profiles')
       .select('*')
       .eq('id', params.child_profile_id)
       .eq('user_id', userId)
       .single();
     
+    if (error) {
+      console.error('Error fetching child profile:', error);
+      throw new Error('Child profile not found');
+    }
+    
     childProfile = data;
+    console.log('Child profile loaded:', childProfile?.name);
   }
 
   // If still no profile, create a default one
@@ -66,18 +79,24 @@ export async function generateAndSaveStory(
   }
 
   // Generate the story using OpenRouter
+  console.log('Calling OpenRouter API...');
   const { title, content, prompt } = await generateStoryWithOpenRouter({
     childProfile,
     theme: params.theme,
     customPrompt: params.custom_prompt,
     storyLength: params.story_length,
-    readingLevel: params.reading_level
+    customWordCount: params.custom_word_count,
+    readingLevel: params.reading_level,
+    storyAbout: params.story_about,
+    customCharacterName: params.custom_character_name
   });
+  console.log('OpenRouter API response received:', { title, contentLength: content.length });
 
   // Calculate word count
   const wordCount = content.split(/\s+/).length;
 
   // Save the story to database using authenticated client
+  console.log('Saving story to database...');
   const supabase = getSupabaseWithAuth(authToken);
   
   const storyData = {
@@ -91,6 +110,8 @@ export async function generateAndSaveStory(
     generation_prompt: prompt,
     is_favorite: false
   };
+
+  console.log('Story data to save:', { ...storyData, content: `${content.substring(0, 50)}...` });
 
   const { data, error } = await supabase
     .from('stories')

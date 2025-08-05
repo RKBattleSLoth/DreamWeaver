@@ -1,5 +1,5 @@
 import axios from 'axios'
-import type { ApiResponse } from 'shared/types'
+import type { ApiResponse } from '../shared/types'
 
 // Create axios instance
 export const api = axios.create({

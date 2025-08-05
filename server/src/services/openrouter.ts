@@ -2,7 +2,12 @@ import { ChildProfile } from '../../shared/types/index.js';
 import { STORY_LENGTHS } from '../../shared/constants/index.js';
 
 const OPENROUTER_API_URL = 'https://openrouter.ai/api/v1/chat/completions';
-const OPENROUTER_API_KEY = process.env.OPENROUTER_API_KEY;
+const OPENROUTER_API_KEY = process.env.OPENROUTER_API_KEY?.trim();
+
+console.log('OpenRouter API Key loaded:', {
+  keyPresent: !!OPENROUTER_API_KEY,
+  keyLength: OPENROUTER_API_KEY?.length || 0
+});
 
 if (!OPENROUTER_API_KEY) {
   console.warn('OPENROUTER_API_KEY not found in environment variables');
@@ -12,8 +17,11 @@ interface StoryGenerationParams {
   childProfile: ChildProfile;
   theme?: string;
   customPrompt?: string;
-  storyLength?: 'short' | 'medium' | 'long';
+  storyLength?: 'short' | 'medium' | 'long' | 'custom';
+  customWordCount?: number;
   readingLevel?: 'beginner' | 'intermediate' | 'advanced';
+  storyAbout?: 'child' | 'other_character';
+  customCharacterName?: string;
 }
 
 export async function generateStoryWithOpenRouter({
@@ -21,7 +29,10 @@ export async function generateStoryWithOpenRouter({
   theme,
   customPrompt,
   storyLength = 'medium',
-  readingLevel
+  customWordCount,
+  readingLevel,
+  storyAbout = 'child',
+  customCharacterName
 }: StoryGenerationParams): Promise<{ title: string; content: string; prompt: string }> {
   if (!OPENROUTER_API_KEY) {
     throw new Error('OpenRouter API key not configured');
@@ -29,7 +40,9 @@ export async function generateStoryWithOpenRouter({
 
   // Use child's reading level if not specified
   const targetReadingLevel = readingLevel || childProfile.reading_level || 'intermediate';
-  const wordCount = STORY_LENGTHS[storyLength].words;
+  const wordCount = storyLength === 'custom' && customWordCount 
+    ? customWordCount 
+    : STORY_LENGTHS[storyLength].words;
 
   // Build the story generation prompt
   const systemPrompt = `You are a talented children's story writer who creates age-appropriate, engaging, and safe bedtime stories. 
@@ -41,12 +54,27 @@ Your stories should be:
 - Engaging and imaginative with a clear beginning, middle, and end
 - Include a gentle moral or lesson when appropriate`;
 
+  // Determine the main character and story focus
+  const isAboutChild = storyAbout === 'child';
+  const mainCharacterName = isAboutChild ? childProfile.name : (customCharacterName || 'the main character');
+  
   const userPromptParts = [
-    `Write a bedtime story for ${childProfile.name}.`
+    isAboutChild 
+      ? `Write a bedtime story for ${childProfile.name}. The story should be about ${childProfile.name}.`
+      : `Write a bedtime story for ${childProfile.name}. The story should be about a character named ${mainCharacterName}.`
   ];
 
+  // Subtly incorporate interests - only sometimes and not always directly
   if (childProfile.interests && childProfile.interests.length > 0) {
-    userPromptParts.push(`${childProfile.name} loves: ${childProfile.interests.join(', ')}.`);
+    const shouldIncludeInterests = Math.random() < 0.4; // Only 40% of stories include interests
+    if (shouldIncludeInterests) {
+      const selectedInterest = childProfile.interests[Math.floor(Math.random() * childProfile.interests.length)];
+      if (isAboutChild) {
+        userPromptParts.push(`You may optionally incorporate ${selectedInterest} into the story if it fits naturally with the theme and plot.`);
+      } else {
+        userPromptParts.push(`If it fits naturally, you may include references to ${selectedInterest} since that's something ${childProfile.name} enjoys.`);
+      }
+    }
   }
 
   if (theme) {
@@ -68,6 +96,24 @@ TITLE: [Story Title]
   const userPrompt = userPromptParts.join(' ');
 
   try {
+    const requestBody = {
+      model: 'anthropic/claude-3-haiku', // Fast and cost-effective for stories
+      messages: [
+        { role: 'system', content: systemPrompt },
+        { role: 'user', content: userPrompt }
+      ],
+      temperature: 0.8, // More creative for stories
+      max_tokens: 2000,
+      stream: false
+    };
+
+    console.log('OpenRouter request details:', {
+      url: OPENROUTER_API_URL,
+      authHeaderLength: OPENROUTER_API_KEY?.length,
+      authHeaderStart: OPENROUTER_API_KEY?.substring(0, 20),
+      model: requestBody.model
+    });
+
     const response = await fetch(OPENROUTER_API_URL, {
       method: 'POST',
       headers: {
@@ -76,16 +122,7 @@ TITLE: [Story Title]
         'HTTP-Referer': 'https://storytime-ai.com',
         'X-Title': 'StoryTime AI'
       },
-      body: JSON.stringify({
-        model: 'anthropic/claude-3-haiku', // Fast and cost-effective for stories
-        messages: [
-          { role: 'system', content: systemPrompt },
-          { role: 'user', content: userPrompt }
-        ],
-        temperature: 0.8, // More creative for stories
-        max_tokens: 2000,
-        stream: false
-      })
+      body: JSON.stringify(requestBody)
     });
 
     if (!response.ok) {

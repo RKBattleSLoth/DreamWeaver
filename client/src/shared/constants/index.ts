@@ -1,4 +1,4 @@
-// Shared constants for StoryTime AI v2.0
+// Client-side constants for StoryTime AI v2.0
 
 export const READING_LEVELS = ['beginner', 'intermediate', 'advanced'] as const;
 

@@ -5,7 +5,7 @@ import type {
   CreateChildProfileRequest, 
   UpdateChildProfileRequest,
   ApiResponse 
-} from 'shared/types';
+} from '../shared/types';
 
 // Get all child profiles
 export function useChildProfiles() {

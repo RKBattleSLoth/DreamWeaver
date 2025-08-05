@@ -135,8 +135,11 @@ export const storySchemas = {
       .min(VALIDATION_RULES.GENERATION_PROMPT.MIN_LENGTH)
       .max(VALIDATION_RULES.GENERATION_PROMPT.MAX_LENGTH)
       .optional(),
-    story_length: z.enum(['short', 'medium', 'long']).optional(),
-    reading_level: z.enum(['beginner', 'intermediate', 'advanced']).optional()
+    story_length: z.enum(['short', 'medium', 'long', 'custom']).optional(),
+    custom_word_count: z.number().min(50).max(2000).optional(),
+    reading_level: z.enum(['beginner', 'intermediate', 'advanced']).optional(),
+    story_about: z.enum(['child', 'other_character']).optional(),
+    custom_character_name: z.string().max(100).optional()
   }),
   
   create: z.object({

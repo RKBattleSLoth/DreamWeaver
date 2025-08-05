@@ -1,7 +1,7 @@
 import React from 'react';
 import { useToggleFavorite, useDeleteStory } from '../hooks/useStories';
 import { formatDistanceToNow } from 'date-fns';
-import type { Story } from 'shared/types';
+import type { Story } from '../shared/types';
 
 interface StoryViewerProps {
   story: Story;

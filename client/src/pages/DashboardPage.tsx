@@ -2,8 +2,8 @@ import React from 'react'
 import { useLocation, Link } from 'wouter'
 import { useSupabaseAuth } from '../lib/supabase-auth'
 import { useActiveChildProfile } from '../hooks/useChildProfiles'
-import Button from '../components/ui/Button'
-import { Card, CardHeader, CardTitle, CardDescription, CardContent } from '../components/ui/Card'
+import Button from '../components/ui/button'
+import { Card, CardHeader, CardTitle, CardDescription, CardContent } from '../components/ui/card'
 
 export default function DashboardPage() {
   const [, setLocation] = useLocation()

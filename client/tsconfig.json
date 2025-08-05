@@ -25,6 +25,7 @@
       "@/types/*": ["./src/types/*"]
     }
   },
-  "include": ["src", "../shared"],
+  "include": ["src"],
+  "exclude": ["../shared/schema.ts", "../shared/schemas"],
   "references": [{ "path": "./tsconfig.node.json" }]
 }

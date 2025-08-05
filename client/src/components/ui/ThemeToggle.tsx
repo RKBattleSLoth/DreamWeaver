@@ -1,6 +1,6 @@
 import React from 'react'
 import { useTheme } from '../../lib/theme'
-import Button from './Button'
+import Button from './button'
 
 const ThemeToggle: React.FC = () => {
   const { theme, toggleTheme } = useTheme()

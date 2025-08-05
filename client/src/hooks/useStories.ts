@@ -7,7 +7,7 @@ import type {
   UpdateStoryRequest,
   GenerateStoryResponse,
   ApiResponse 
-} from 'shared/types';
+} from '../shared/types';
 
 // Get all stories
 export function useStories() {

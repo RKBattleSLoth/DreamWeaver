@@ -45,12 +45,19 @@ export async function getAuthenticatedUser(authHeader: string | undefined) {
   const token = authHeader.substring(7);
   
   try {
-    const { data: { user }, error } = await supabaseClient.auth.getUser(token);
+    // Validate token by calling Supabase auth API directly
+    const response = await fetch(`${supabaseUrl}/auth/v1/user`, {
+      headers: {
+        'Authorization': `Bearer ${token}`,
+        'apikey': process.env.SUPABASE_ANON_KEY!
+      }
+    });
     
-    if (error || !user) {
+    if (!response.ok) {
       return null;
     }
     
+    const user = await response.json();
     return user;
   } catch (error) {
     console.error('Error verifying user token:', error);

@@ -10,9 +10,9 @@ import {
 } from '../hooks/useChildProfiles';
 import ChildProfileCard from '../components/profiles/ChildProfileCard';
 import ChildProfileForm from '../components/profiles/ChildProfileForm';
-import Button from '../components/ui/Button';
-import { Card, CardHeader, CardTitle, CardDescription, CardContent } from '../components/ui/Card';
-import { ChildProfile, CreateChildProfileRequest, UpdateChildProfileRequest } from 'shared/types';
+import Button from '../components/ui/button';
+import { Card, CardHeader, CardTitle, CardDescription, CardContent } from '../components/ui/card';
+import { ChildProfile, CreateChildProfileRequest, UpdateChildProfileRequest } from '../shared/types';
 
 export default function ChildProfilesPage() {
   const [, setLocation] = useLocation();

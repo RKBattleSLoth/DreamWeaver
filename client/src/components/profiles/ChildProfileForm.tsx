@@ -1,9 +1,9 @@
 import React, { useState } from 'react';
-import { Card, CardHeader, CardTitle, CardContent, CardFooter } from '../ui/Card';
-import Button from '../ui/Button';
-import Input from '../ui/Input';
-import { ChildProfile, CreateChildProfileRequest, UpdateChildProfileRequest } from 'shared/types';
-import { READING_LEVELS, CONTENT_SAFETY_LEVELS, ART_STYLES } from 'shared/constants';
+import { Card, CardHeader, CardTitle, CardContent, CardFooter } from '../ui/card';
+import Button from '../ui/button';
+import Input from '../ui/input';
+import { ChildProfile, CreateChildProfileRequest, UpdateChildProfileRequest } from '../../shared/types';
+import { READING_LEVELS, CONTENT_SAFETY_LEVELS, ART_STYLES } from '../../shared/constants';
 
 interface ChildProfileFormProps {
   profile?: ChildProfile;

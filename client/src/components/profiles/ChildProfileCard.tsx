@@ -1,7 +1,7 @@
 import React from 'react';
-import { Card, CardHeader, CardTitle, CardDescription, CardContent } from '../ui/Card';
-import Button from '../ui/Button';
-import { ChildProfile } from 'shared/types';
+import { Card, CardHeader, CardTitle, CardDescription, CardContent } from '../ui/card';
+import Button from '../ui/button';
+import { ChildProfile } from '../../shared/types';
 
 interface ChildProfileCardProps {
   profile: ChildProfile;
