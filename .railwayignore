@@ -1,0 +1,9 @@
+client/
+docs/
+*.md
+.env*
+.git/
+node_modules/
+dist/
+build/
+coverage/

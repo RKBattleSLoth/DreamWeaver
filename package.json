@@ -8,10 +8,10 @@
     "dev": "concurrently \"npm run dev:server\" \"npm run dev:client\"",
     "dev:client": "cd client && npm run dev",
     "dev:server": "cd server && npm run dev",
-    "build": "cd server && npm ci && echo 'Build complete'",
+    "build": "echo 'Build complete - no compilation needed'",
     "build:client": "cd client && npm run build",
     "build:server": "cd server && npm run build",
-    "start": "cd server && tsx src/index.ts",
+    "start": "cd server && npm run dev",
     "test": "npm run test:client && npm run test:server",
     "test:client": "cd client && npm test",
     "test:server": "cd server && npm test",
@@ -31,6 +31,7 @@
   },
   "dependencies": {
     "@types/pg": "^8.15.5",
-    "pg": "^8.16.3"
+    "pg": "^8.16.3",
+    "tsx": "^4.19.1"
   }
 }
