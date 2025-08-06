@@ -1,6 +1,6 @@
 import { Router, Request, Response } from 'express';
 import { hashPassword, comparePassword, generateToken } from '../utils/auth.js';
-import { createUser, getUserByEmail } from '../services/database.js';
+import { createUser, getUserByEmail } from '../services/db.js';
 import { validateBody, authSchemas } from '../middleware/validation.js';
 import { authenticateToken } from '../middleware/auth.js';
 import { LoginRequest, RegisterRequest, AuthResponse, ApiResponse } from '../../shared/types/index.js';

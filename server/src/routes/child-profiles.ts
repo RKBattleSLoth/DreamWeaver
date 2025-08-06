@@ -1,5 +1,5 @@
 import { Router, Request, Response } from 'express';
-import { authenticateSupabaseUser } from '../middleware/supabase-auth.js';
+import { authenticateToken } from '../middleware/auth.js';
 import { validateBody, validateParams, childProfileSchemas, paramSchemas } from '../middleware/validation.js';
 import {
   getChildProfilesByUserId,
@@ -8,7 +8,7 @@ import {
   updateChildProfile,
   deleteChildProfile,
   setActiveChildProfile
-} from '../services/child-profiles.js';
+} from '../services/child-profiles-service.js';
 import { 
   CreateChildProfileRequest, 
   UpdateChildProfileRequest, 
@@ -18,12 +18,12 @@ import {
 const router = Router();
 
 // All routes require authentication
-router.use(authenticateSupabaseUser);
+router.use(authenticateToken);
 
 // Get all child profiles for current user
 router.get('/', async (req: Request, res: Response) => {
   try {
-    const profiles = await getChildProfilesByUserId(req.user!.id);
+    const profiles = await getChildProfilesByUserId(req.userId!);
     
     res.json({
       success: true,
@@ -41,7 +41,7 @@ router.get('/', async (req: Request, res: Response) => {
 // Get active child profile
 router.get('/active', async (req: Request, res: Response) => {
   try {
-    const profile = await getActiveChildProfile(req.user!.id);
+    const profile = await getActiveChildProfile(req.userId!);
     
     if (!profile) {
       return res.status(404).json({
@@ -69,7 +69,7 @@ router.post('/',
   async (req: Request<{}, ApiResponse, CreateChildProfileRequest>, res: Response) => {
     try {
       // Pass the auth token to the service
-      const profile = await createChildProfile(req.user!.id, req.body, req.authToken!);
+      const profile = await createChildProfile(req.userId!, req.body);
       
       res.status(201).json({
         success: true,
@@ -91,7 +91,7 @@ router.put('/:id',
   validateBody(childProfileSchemas.update),
   async (req: Request<{ id: string }, ApiResponse, UpdateChildProfileRequest>, res: Response) => {
     try {
-      const profile = await updateChildProfile(req.params.id, req.user!.id, req.body);
+      const profile = await updateChildProfile(req.params.id, req.userId!, req.body);
       
       res.json({
         success: true,
@@ -112,7 +112,7 @@ router.delete('/:id',
   validateParams(paramSchemas.uuid),
   async (req: Request<{ id: string }>, res: Response) => {
     try {
-      await deleteChildProfile(req.params.id, req.user!.id);
+      await deleteChildProfile(req.params.id, req.userId!);
       
       res.json({
         success: true,
@@ -133,7 +133,7 @@ router.post('/:id/activate',
   validateParams(paramSchemas.uuid),
   async (req: Request<{ id: string }>, res: Response) => {
     try {
-      const profile = await setActiveChildProfile(req.params.id, req.user!.id);
+      const profile = await setActiveChildProfile(req.params.id, req.userId!);
       
       res.json({
         success: true,

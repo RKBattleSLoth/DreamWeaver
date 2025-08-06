@@ -1,6 +1,6 @@
 import { Request, Response, NextFunction } from 'express';
 import { verifyToken, extractTokenFromHeader, JWTPayload } from '../utils/auth.js';
-import { getUserById } from '../services/database.js';
+import { getUserById } from '../services/db.js';
 import { User } from '../../shared/types/index.js';
 
 // Extend Express Request type to include user

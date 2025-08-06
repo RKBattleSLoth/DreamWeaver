@@ -1,5 +1,5 @@
 import { Router, Request, Response } from 'express';
-import { authenticateSupabaseUser } from '../middleware/supabase-auth.js';
+import { authenticateToken } from '../middleware/auth.js';
 import { validateBody, validateParams, storySchemas, paramSchemas } from '../middleware/validation.js';
 import {
   getStoriesByUserId,
@@ -10,7 +10,7 @@ import {
   deleteStory,
   toggleFavoriteStory
 } from '../services/stories.js';
-import { getActiveChildProfile } from '../services/child-profiles.js';
+import { getActiveChildProfile } from '../services/child-profiles-service.js';
 import { 
   GenerateStoryRequest, 
   CreateStoryRequest,
@@ -21,12 +21,12 @@ import {
 const router = Router();
 
 // All routes require authentication
-router.use(authenticateSupabaseUser);
+router.use(authenticateToken);
 
 // Get all stories for current user
 router.get('/', async (req: Request, res: Response) => {
   try {
-    const stories = await getStoriesByUserId(req.user!.id);
+    const stories = await getStoriesByUserId(req.userId!);
     
     res.json({
       success: true,

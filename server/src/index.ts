@@ -2,14 +2,20 @@ import './config/env.js';
 import express from 'express';
 import cors from 'cors';
 import helmet from 'helmet';
-import supabaseAuthRoutes from './routes/supabase-auth.js';
+import authRoutes from './routes/auth.js';
+import path from 'path';
+import { fileURLToPath } from 'url';
+import { checkDatabaseConnection } from './services/db.js';
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
 // Debug environment variables
 console.log('Environment check:');
 console.log('NODE_ENV:', process.env.NODE_ENV);
-console.log('SUPABASE_URL:', process.env.SUPABASE_URL ? 'Found' : 'Missing');
-console.log('SUPABASE_ANON_KEY:', process.env.SUPABASE_ANON_KEY ? 'Found' : 'Missing');
-console.log('SUPABASE_SERVICE_ROLE_KEY:', process.env.SUPABASE_SERVICE_ROLE_KEY ? 'Found' : 'Missing');
+console.log('DATABASE_URL:', process.env.DATABASE_URL ? 'Found' : 'Missing');
+console.log('USE_POSTGRES:', process.env.USE_POSTGRES || 'false');
+console.log('STORAGE_TYPE:', process.env.STORAGE_TYPE || 'local');
 
 const app = express();
 const PORT = process.env.PORT || 8080;
@@ -17,8 +23,8 @@ const PORT = process.env.PORT || 8080;
 // Security middleware
 app.use(helmet());
 app.use(cors({
-  origin: process.env.NODE_ENV === 'production' 
-    ? ['https://yourdomain.com'] 
+  origin: process.env.CORS_ORIGIN 
+    ? process.env.CORS_ORIGIN.split(',') 
     : ['http://localhost:5173'],
   credentials: true
 }));
@@ -41,16 +47,34 @@ app.use((req, res, next) => {
 });
 
 // Health check endpoint
-app.get('/health', (req, res) => {
-  res.json({ 
-    status: 'ok', 
+app.get('/health', async (req, res) => {
+  const dbHealthy = await checkDatabaseConnection();
+  res.status(dbHealthy ? 200 : 503).json({ 
+    status: dbHealthy ? 'ok' : 'database_error', 
     timestamp: new Date().toISOString(),
-    version: '2.0.0'
+    version: '2.0.0',
+    database: dbHealthy ? 'connected' : 'disconnected'
   });
 });
 
+// API health check
+app.get('/api/health', async (req, res) => {
+  const dbHealthy = await checkDatabaseConnection();
+  res.status(dbHealthy ? 200 : 503).json({ 
+    status: dbHealthy ? 'ok' : 'database_error', 
+    timestamp: new Date().toISOString(),
+    database: dbHealthy ? 'connected' : 'disconnected'
+  });
+});
+
+// Serve static files for uploads (local storage)
+if (process.env.STORAGE_TYPE === 'local' || !process.env.STORAGE_TYPE) {
+  const uploadDir = path.join(__dirname, '../..', process.env.UPLOAD_DIR || 'uploads');
+  app.use('/uploads', express.static(uploadDir));
+}
+
 // API routes
-app.use('/api/auth', supabaseAuthRoutes);
+app.use('/api/auth', authRoutes);
 
 // Import child profiles routes
 import childProfileRoutes from './routes/child-profiles.js';
