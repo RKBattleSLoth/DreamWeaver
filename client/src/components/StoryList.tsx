@@ -1,5 +1,5 @@
 import React from 'react';
-import { useStories, useDeleteStory, useToggleFavorite } from '../hooks/useStories';
+import { useStories, useDeleteStory, useToggleFavoriteStory } from '../hooks/useStories';
 import { formatDistanceToNow } from 'date-fns';
 import type { Story } from '../shared/types';
 
@@ -10,7 +10,7 @@ interface StoryCardProps {
 
 function StoryCard({ story, onView }: StoryCardProps) {
   const deleteStory = useDeleteStory();
-  const toggleFavorite = useToggleFavorite();
+  const toggleFavorite = useToggleFavoriteStory();
 
   const handleDelete = async (e: React.MouseEvent) => {
     e.stopPropagation();

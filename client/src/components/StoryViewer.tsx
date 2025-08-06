@@ -1,5 +1,5 @@
 import React from 'react';
-import { useToggleFavorite, useDeleteStory } from '../hooks/useStories';
+import { useToggleFavoriteStory, useDeleteStory } from '../hooks/useStories';
 import { formatDistanceToNow } from 'date-fns';
 import type { Story } from '../shared/types';
 
@@ -10,7 +10,7 @@ interface StoryViewerProps {
 }
 
 export function StoryViewer({ story, onClose, onEdit }: StoryViewerProps) {
-  const toggleFavorite = useToggleFavorite();
+  const toggleFavorite = useToggleFavoriteStory();
   const deleteStory = useDeleteStory();
 
   const handleToggleFavorite = async () => {
