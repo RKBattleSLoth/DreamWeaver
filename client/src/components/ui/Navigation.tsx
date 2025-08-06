@@ -1,20 +1,16 @@
 import React from 'react'
 import { useLocation, Link } from 'wouter'
-import { useSupabaseAuth } from '../../lib/supabase-auth'
+import { useAuth } from '../../lib/jwt-auth'
 import Button from './button'
 import ThemeToggle from './ThemeToggle'
 
 const Navigation: React.FC = () => {
   const [location, setLocation] = useLocation()
-  const { user, logout } = useSupabaseAuth()
+  const { user, logout } = useAuth()
 
-  const handleLogout = async () => {
-    try {
-      await logout()
-      setLocation('/login')
-    } catch (error) {
-      console.error('Logout failed:', error)
-    }
+  const handleLogout = () => {
+    logout()
+    setLocation('/login')
   }
 
   const isActive = (path: string) => location === path

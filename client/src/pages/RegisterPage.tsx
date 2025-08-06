@@ -1,13 +1,13 @@
 import React, { useState } from 'react'
 import { Link, useLocation } from 'wouter'
-import { useSupabaseAuth } from '../lib/supabase-auth'
+import { useAuth } from '../lib/jwt-auth'
 import Button from '../components/ui/button'
 import Input from '../components/ui/input'
 import { Card, CardHeader, CardTitle, CardDescription, CardContent, CardFooter } from '../components/ui/card'
 
 export default function RegisterPage() {
   const [, setLocation] = useLocation()
-  const { register, isAuthenticated } = useSupabaseAuth()
+  const { register, isAuthenticated } = useAuth()
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [confirmPassword, setConfirmPassword] = useState('')
@@ -38,7 +38,7 @@ export default function RegisterPage() {
     setIsLoading(true)
 
     try {
-      await register({ email, password })
+      await register(email, password)
       setLocation('/')
     } catch (err: any) {
       setError(err.message || 'Registration failed')

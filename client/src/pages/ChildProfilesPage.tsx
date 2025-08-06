@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { useLocation } from 'wouter';
-import { useSupabaseAuth } from '../lib/supabase-auth';
+import { useAuth } from '../lib/jwt-auth';
 import { 
   useChildProfiles, 
   useCreateChildProfile, 
@@ -16,7 +16,7 @@ import { ChildProfile, CreateChildProfileRequest, UpdateChildProfileRequest } fr
 
 export default function ChildProfilesPage() {
   const [, setLocation] = useLocation();
-  const { isAuthenticated, isLoading: authLoading } = useSupabaseAuth();
+  const { isAuthenticated, isLoading: authLoading } = useAuth();
   const [showForm, setShowForm] = useState(false);
   const [editingProfile, setEditingProfile] = useState<ChildProfile | null>(null);
 

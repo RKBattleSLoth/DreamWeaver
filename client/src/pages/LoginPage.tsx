@@ -1,13 +1,13 @@
 import React, { useState } from 'react'
 import { Link, useLocation } from 'wouter'
-import { useSupabaseAuth } from '../lib/supabase-auth'
+import { useAuth } from '../lib/jwt-auth'
 import Button from '../components/ui/button'
 import Input from '../components/ui/input'
 import { Card, CardHeader, CardTitle, CardDescription, CardContent, CardFooter } from '../components/ui/card'
 
 export default function LoginPage() {
   const [, setLocation] = useLocation()
-  const { login, isAuthenticated } = useSupabaseAuth()
+  const { login, isAuthenticated } = useAuth()
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [error, setError] = useState('')
@@ -26,7 +26,7 @@ export default function LoginPage() {
     setIsLoading(true)
 
     try {
-      await login({ email, password })
+      await login(email, password)
       setLocation('/')
     } catch (err: any) {
       setError(err.message || 'Login failed')

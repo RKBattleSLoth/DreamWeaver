@@ -1,13 +1,13 @@
 import React from 'react'
 import { useLocation, Link } from 'wouter'
-import { useSupabaseAuth } from '../lib/supabase-auth'
+import { useAuth } from '../lib/jwt-auth'
 import { useActiveChildProfile } from '../hooks/useChildProfiles'
 import Button from '../components/ui/button'
 import { Card, CardHeader, CardTitle, CardDescription, CardContent } from '../components/ui/card'
 
 export default function DashboardPage() {
   const [, setLocation] = useLocation()
-  const { user, isLoading, isAuthenticated, logout } = useSupabaseAuth()
+  const { user, isLoading, isAuthenticated, logout } = useAuth()
   const { data: activeProfile } = useActiveChildProfile()
 
   // Redirect to login if not authenticated
