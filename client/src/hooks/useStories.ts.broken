@@ -34,16 +34,16 @@ export function useStories() {
       }
 
       return result.data || [];
-    },
-    enabled: true
+    }
   });
 }
 
-// Get single story by ID
+// Get single story
 export function useStory(id: string) {
   return useQuery({
     queryKey: ['stories', id],
     queryFn: async () => {
+
       const response = await fetch(`${API_BASE_URL}/stories/${id}`, {
         headers: {
           'Content-Type': 'application/json',
@@ -52,6 +52,9 @@ export function useStory(id: string) {
       });
 
       if (!response.ok) {
+        if (response.status === 404) {
+          return null;
+        }
         throw new Error('Failed to fetch story');
       }
 
@@ -73,7 +76,8 @@ export function useGenerateStory() {
 
   return useMutation({
     mutationFn: async (params: GenerateStoryRequest) => {
-      const response = await fetch(`${API_BASE_URL}/stories/generate`, {
+
+      const response = await fetch(`${API_BASE_URL}/stories/generate', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -94,11 +98,8 @@ export function useGenerateStory() {
 
       return result.data;
     },
-    onSuccess: (data) => {
+    onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['stories'] });
-      if (data?.story) {
-        queryClient.setQueryData(['stories', data.story.id], data.story);
-      }
     }
   });
 }
@@ -109,6 +110,7 @@ export function useCreateStory() {
 
   return useMutation({
     mutationFn: async (storyData: CreateStoryRequest) => {
+
       const response = await fetch(`${API_BASE_URL}/stories`, {
         method: 'POST',
         headers: {
@@ -130,9 +132,8 @@ export function useCreateStory() {
 
       return result.data;
     },
-    onSuccess: (data) => {
+    onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['stories'] });
-      queryClient.setQueryData(['stories', data.id], data);
     }
   });
 }
@@ -143,6 +144,7 @@ export function useUpdateStory() {
 
   return useMutation({
     mutationFn: async ({ id, updates }: { id: string; updates: UpdateStoryRequest }) => {
+
       const response = await fetch(`${API_BASE_URL}/stories/${id}`, {
         method: 'PUT',
         headers: {
@@ -166,7 +168,7 @@ export function useUpdateStory() {
     },
     onSuccess: (data) => {
       queryClient.invalidateQueries({ queryKey: ['stories'] });
-      queryClient.setQueryData(['stories', data.id], data);
+      queryClient.invalidateQueries({ queryKey: ['stories', data?.id] });
     }
   });
 }
@@ -177,6 +179,7 @@ export function useDeleteStory() {
 
   return useMutation({
     mutationFn: async (id: string) => {
+
       const response = await fetch(`${API_BASE_URL}/stories/${id}`, {
         method: 'DELETE',
         headers: {
@@ -194,22 +197,20 @@ export function useDeleteStory() {
       if (!result.success) {
         throw new Error(result.error?.message || 'Failed to delete story');
       }
-
-      return result.data;
     },
-    onSuccess: (_, id) => {
+    onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['stories'] });
-      queryClient.removeQueries({ queryKey: ['stories', id] });
     }
   });
 }
 
-// Toggle favorite status
-export function useToggleFavoriteStory() {
+// Toggle favorite
+export function useToggleFavorite() {
   const queryClient = useQueryClient();
 
   return useMutation({
     mutationFn: async (id: string) => {
+
       const response = await fetch(`${API_BASE_URL}/stories/${id}/favorite`, {
         method: 'POST',
         headers: {
@@ -232,7 +233,7 @@ export function useToggleFavoriteStory() {
     },
     onSuccess: (data) => {
       queryClient.invalidateQueries({ queryKey: ['stories'] });
-      queryClient.setQueryData(['stories', data.id], data);
+      queryClient.invalidateQueries({ queryKey: ['stories', data?.id] });
     }
   });
 }
