@@ -1,9 +1,9 @@
 [build]
 builder = "nixpacks"
-buildCommand = "npm ci"
+buildCommand = "npm install tsx && cd server && npm ci"
 
 [deploy]
-startCommand = "cd server && npm run dev"
+startCommand = "npm start"
 healthcheckPath = "/health"
 healthcheckTimeout = 300
 restartPolicyType = "on_failure"

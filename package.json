@@ -4,18 +4,14 @@
   "description": "StoryTime AI - Personalized bedtime stories with separated generation and gallery system",
   "type": "module",
   "private": true,
-  "workspaces": [
-    "client",
-    "server"
-  ],
   "scripts": {
     "dev": "concurrently \"npm run dev:server\" \"npm run dev:client\"",
     "dev:client": "cd client && npm run dev",
     "dev:server": "cd server && npm run dev",
-    "build": "npm run build:server",
+    "build": "cd server && npm ci && echo 'Build complete'",
     "build:client": "cd client && npm run build",
     "build:server": "cd server && npm run build",
-    "start": "cd server && npm start",
+    "start": "cd server && tsx src/index.ts",
     "test": "npm run test:client && npm run test:server",
     "test:client": "cd client && npm test",
     "test:server": "cd server && npm test",
@@ -27,7 +23,8 @@
     "typecheck:server": "cd server && npm run typecheck"
   },
   "devDependencies": {
-    "concurrently": "^8.2.2"
+    "concurrently": "^8.2.2",
+    "tsx": "^4.19.1"
   },
   "engines": {
     "node": ">=18.0.0"
