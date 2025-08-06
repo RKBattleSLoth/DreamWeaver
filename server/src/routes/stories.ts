@@ -9,7 +9,7 @@ import {
   updateStory,
   deleteStory,
   toggleFavoriteStory
-} from '../services/stories.js';
+} from '../services/stories-service.js';
 import { getActiveChildProfile } from '../services/child-profiles-service.js';
 import { 
   GenerateStoryRequest, 

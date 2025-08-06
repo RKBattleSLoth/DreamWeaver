@@ -1,5 +1,6 @@
 import * as db from './db.js';
-import type { Story, StoryWithIllustrations } from '../../shared/types/index.js';
+import type { Story, StoryWithIllustrations, ChildProfile, GenerateStoryRequest } from '../../shared/types/index.js';
+import { generateStoryWithOpenRouter } from './openrouter.js';
 
 export async function getStoriesByUserId(userId: string): Promise<Story[]> {
   try {
@@ -143,5 +144,74 @@ export async function getStoryIllustrations(
   } catch (error) {
     console.error('Error fetching story illustrations:', error);
     throw new Error('Failed to fetch story illustrations');
+  }
+}
+
+export async function generateAndSaveStory(
+  userId: string,
+  childProfile: ChildProfile | null,
+  params: GenerateStoryRequest,
+  authToken?: string
+): Promise<Story> {
+  try {
+    console.log('generateAndSaveStory called with:', {
+      userId,
+      childProfileId: childProfile?.id,
+      params
+    });
+
+    // Generate the story content using AI
+    const prompt = params.custom_prompt || 
+      `Create a ${params.reading_level || 'beginner'} level story about ${params.theme || 'adventure'} 
+       ${childProfile ? `for a ${childProfile.age} year old child` : ''}`;
+    
+    const { title, content } = await generateStoryWithOpenRouter(prompt, {
+      reading_level: params.reading_level || childProfile?.reading_level || 'beginner',
+      word_count: params.word_count || 500,
+      theme: params.theme
+    });
+
+    const wordCount = content.split(/\s+/).length;
+
+    const storyData = {
+      child_profile_id: childProfile?.id || params.child_profile_id,
+      title,
+      content,
+      theme: params.theme,
+      reading_level: params.reading_level || childProfile?.reading_level,
+      word_count: wordCount,
+      generation_prompt: prompt,
+      is_favorite: false
+    };
+
+    console.log('Story data to save:', { ...storyData, content: `${content.substring(0, 50)}...` });
+
+    return await db.createStory(userId, storyData);
+  } catch (error) {
+    console.error('Error generating and saving story:', error);
+    throw new Error('Failed to generate and save story');
+  }
+}
+
+export async function toggleFavoriteStory(
+  storyId: string,
+  userId: string,
+  authToken?: string
+): Promise<Story> {
+  try {
+    // Get current story to toggle its favorite status
+    const story = await db.getStoryById(storyId, userId);
+    if (!story) {
+      throw new Error('Story not found');
+    }
+
+    const updates = {
+      is_favorite: !story.is_favorite
+    };
+
+    return await db.updateStory(storyId, userId, updates);
+  } catch (error) {
+    console.error('Error toggling favorite story:', error);
+    throw new Error('Failed to toggle favorite story');
   }
 }

@@ -1,11 +1,10 @@
 // Database abstraction layer
 // This module exports the appropriate database implementation based on configuration
 
-import * as supabaseDb from './database.js';
 import * as postgresDb from './postgres-database.js';
 
-// Determine which database to use based on environment variable
-const usePostgres = process.env.USE_POSTGRES === 'true' || !process.env.SUPABASE_URL;
+// Always use PostgreSQL for Railway deployment
+const usePostgres = true;
 
 // Export the appropriate database implementation
 export const {
@@ -31,26 +30,11 @@ export const {
   linkIllustrationToStory,
   unlinkIllustrationFromStory,
   getStoryIllustrations
-} = usePostgres ? postgresDb : supabaseDb;
+} = postgresDb;
 
 // Export database-specific utilities
-export const checkDatabaseConnection = usePostgres 
-  ? postgresDb.checkDatabaseConnection 
-  : async () => {
-      try {
-        // For Supabase, just check if the client is configured
-        return !!supabaseDb.supabase;
-      } catch {
-        return false;
-      }
-    };
-
-export const closeDatabaseConnection = usePostgres
-  ? postgresDb.closeDatabaseConnection
-  : async () => {
-      // Supabase client doesn't need explicit closing
-      return Promise.resolve();
-    };
+export const checkDatabaseConnection = postgresDb.checkDatabaseConnection;
+export const closeDatabaseConnection = postgresDb.closeDatabaseConnection;
 
 // Log which database is being used
-console.log(`Using ${usePostgres ? 'PostgreSQL' : 'Supabase'} database`);
+console.log('Using PostgreSQL database');
