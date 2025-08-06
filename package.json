@@ -5,10 +5,11 @@
   "type": "module",
   "private": true,
   "scripts": {
+    "postinstall": "cd server && npm install",
     "dev": "concurrently \"npm run dev:server\" \"npm run dev:client\"",
     "dev:client": "cd client && npm run dev",
     "dev:server": "cd server && npm run dev",
-    "build": "echo 'Build complete - no compilation needed'",
+    "build": "cd server && npm ci",
     "build:client": "cd client && npm run build",
     "build:server": "cd server && npm run build",
     "start": "cd server && npm run dev",
