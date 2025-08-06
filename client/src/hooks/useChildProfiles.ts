@@ -1,5 +1,5 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { supabase } from '../lib/supabase-auth';
+import { getAuthHeaders } from '../lib/jwt-auth';
 import type { 
   ChildProfile, 
   CreateChildProfileRequest, 
@@ -7,17 +7,17 @@ import type {
   ApiResponse 
 } from '../shared/types';
 
+const API_BASE_URL = import.meta.env.VITE_API_URL || '/api';
+
 // Get all child profiles
 export function useChildProfiles() {
   return useQuery({
     queryKey: ['child-profiles'],
     queryFn: async () => {
-      const { data: { session } } = await supabase.auth.getSession();
-      if (!session) throw new Error('Not authenticated');
-
-      const response = await fetch('/api/profiles', {
+      const response = await fetch(`${API_BASE_URL}/profiles`, {
         headers: {
-          'Authorization': `Bearer ${session.access_token}`
+          'Content-Type': 'application/json',
+          ...getAuthHeaders()
         }
       });
 
@@ -42,12 +42,10 @@ export function useActiveChildProfile() {
   return useQuery({
     queryKey: ['child-profiles', 'active'],
     queryFn: async () => {
-      const { data: { session } } = await supabase.auth.getSession();
-      if (!session) throw new Error('Not authenticated');
-
-      const response = await fetch('/api/profiles/active', {
+      const response = await fetch(`${API_BASE_URL}/profiles/active`, {
         headers: {
-          'Authorization': `Bearer ${session.access_token}`
+          'Content-Type': 'application/json',
+          ...getAuthHeaders()
         }
       });
 
@@ -76,14 +74,11 @@ export function useCreateChildProfile() {
 
   return useMutation({
     mutationFn: async (profileData: CreateChildProfileRequest) => {
-      const { data: { session } } = await supabase.auth.getSession();
-      if (!session) throw new Error('Not authenticated');
-
-      const response = await fetch('/api/profiles', {
+      const response = await fetch(`${API_BASE_URL}/profiles`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'Authorization': `Bearer ${session.access_token}`
+          ...getAuthHeaders()
         },
         body: JSON.stringify(profileData)
       });
@@ -112,14 +107,11 @@ export function useUpdateChildProfile() {
 
   return useMutation({
     mutationFn: async ({ id, updates }: { id: string; updates: UpdateChildProfileRequest }) => {
-      const { data: { session } } = await supabase.auth.getSession();
-      if (!session) throw new Error('Not authenticated');
-
-      const response = await fetch(`/api/profiles/${id}`, {
+      const response = await fetch(`${API_BASE_URL}/profiles/${id}`, {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
-          'Authorization': `Bearer ${session.access_token}`
+          ...getAuthHeaders()
         },
         body: JSON.stringify(updates)
       });
@@ -149,13 +141,11 @@ export function useDeleteChildProfile() {
 
   return useMutation({
     mutationFn: async (id: string) => {
-      const { data: { session } } = await supabase.auth.getSession();
-      if (!session) throw new Error('Not authenticated');
-
-      const response = await fetch(`/api/profiles/${id}`, {
+      const response = await fetch(`${API_BASE_URL}/profiles/${id}`, {
         method: 'DELETE',
         headers: {
-          'Authorization': `Bearer ${session.access_token}`
+          'Content-Type': 'application/json',
+          ...getAuthHeaders()
         }
       });
 
@@ -184,13 +174,11 @@ export function useSetActiveChildProfile() {
 
   return useMutation({
     mutationFn: async (id: string) => {
-      const { data: { session } } = await supabase.auth.getSession();
-      if (!session) throw new Error('Not authenticated');
-
-      const response = await fetch(`/api/profiles/${id}/activate`, {
+      const response = await fetch(`${API_BASE_URL}/profiles/${id}/activate`, {
         method: 'POST',
         headers: {
-          'Authorization': `Bearer ${session.access_token}`
+          'Content-Type': 'application/json',
+          ...getAuthHeaders()
         }
       });
 

@@ -4,14 +4,14 @@ import RegisterPage from './pages/RegisterPage'
 import DashboardPage from './pages/DashboardPage'
 import ChildProfilesPage from './pages/ChildProfilesPage'
 import { Stories } from './pages/Stories'
-import { SupabaseAuthProvider } from './lib/supabase-auth'
+import { JWTAuthProvider } from './lib/jwt-auth'
 import Navigation from './components/ui/Navigation'
 import { ThemeProvider } from './lib/theme'
 
 function App() {
   return (
     <ThemeProvider>
-      <SupabaseAuthProvider>
+      <JWTAuthProvider>
         <Router>
           <div className="min-h-screen bg-white dark:bg-gray-900 transition-colors">
             <Navigation />
@@ -34,7 +34,7 @@ function App() {
           </Switch>
           </div>
         </Router>
-      </SupabaseAuthProvider>
+      </JWTAuthProvider>
     </ThemeProvider>
   )
 }

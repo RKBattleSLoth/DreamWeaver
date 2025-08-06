@@ -1,5 +1,5 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { supabase } from '../lib/supabase-auth';
+import { getAuthHeaders } from '../lib/jwt-auth';
 import type { 
   Story, 
   GenerateStoryRequest, 
@@ -9,17 +9,17 @@ import type {
   ApiResponse 
 } from '../shared/types';
 
+const API_BASE_URL = import.meta.env.VITE_API_URL || '/api';
+
 // Get all stories
 export function useStories() {
   return useQuery({
     queryKey: ['stories'],
     queryFn: async () => {
-      const { data: { session } } = await supabase.auth.getSession();
-      if (!session) throw new Error('Not authenticated');
-
-      const response = await fetch('/api/stories', {
+      const response = await fetch(`${API_BASE_URL}/stories`, {
         headers: {
-          'Authorization': `Bearer ${session.access_token}`
+          'Content-Type': 'application/json',
+          ...getAuthHeaders()
         }
       });
 
@@ -43,12 +43,11 @@ export function useStory(id: string) {
   return useQuery({
     queryKey: ['stories', id],
     queryFn: async () => {
-      const { data: { session } } = await supabase.auth.getSession();
-      if (!session) throw new Error('Not authenticated');
 
       const response = await fetch(`/api/stories/${id}`, {
         headers: {
-          'Authorization': `Bearer ${session.access_token}`
+          'Content-Type': 'application/json',
+          ...getAuthHeaders()
         }
       });
 
@@ -77,14 +76,12 @@ export function useGenerateStory() {
 
   return useMutation({
     mutationFn: async (params: GenerateStoryRequest) => {
-      const { data: { session } } = await supabase.auth.getSession();
-      if (!session) throw new Error('Not authenticated');
 
-      const response = await fetch('/api/stories/generate', {
+      const response = await fetch(`${API_BASE_URL}/stories/generate', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'Authorization': `Bearer ${session.access_token}`
+          ...getAuthHeaders()
         },
         body: JSON.stringify(params)
       });
@@ -113,14 +110,12 @@ export function useCreateStory() {
 
   return useMutation({
     mutationFn: async (storyData: CreateStoryRequest) => {
-      const { data: { session } } = await supabase.auth.getSession();
-      if (!session) throw new Error('Not authenticated');
 
-      const response = await fetch('/api/stories', {
+      const response = await fetch(`${API_BASE_URL}/stories', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'Authorization': `Bearer ${session.access_token}`
+          ...getAuthHeaders()
         },
         body: JSON.stringify(storyData)
       });
@@ -149,14 +144,12 @@ export function useUpdateStory() {
 
   return useMutation({
     mutationFn: async ({ id, updates }: { id: string; updates: UpdateStoryRequest }) => {
-      const { data: { session } } = await supabase.auth.getSession();
-      if (!session) throw new Error('Not authenticated');
 
       const response = await fetch(`/api/stories/${id}`, {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
-          'Authorization': `Bearer ${session.access_token}`
+          ...getAuthHeaders()
         },
         body: JSON.stringify(updates)
       });
@@ -186,13 +179,12 @@ export function useDeleteStory() {
 
   return useMutation({
     mutationFn: async (id: string) => {
-      const { data: { session } } = await supabase.auth.getSession();
-      if (!session) throw new Error('Not authenticated');
 
       const response = await fetch(`/api/stories/${id}`, {
         method: 'DELETE',
         headers: {
-          'Authorization': `Bearer ${session.access_token}`
+          'Content-Type': 'application/json',
+          ...getAuthHeaders()
         }
       });
 
@@ -218,13 +210,12 @@ export function useToggleFavorite() {
 
   return useMutation({
     mutationFn: async (id: string) => {
-      const { data: { session } } = await supabase.auth.getSession();
-      if (!session) throw new Error('Not authenticated');
 
       const response = await fetch(`/api/stories/${id}/favorite`, {
         method: 'POST',
         headers: {
-          'Authorization': `Bearer ${session.access_token}`
+          'Content-Type': 'application/json',
+          ...getAuthHeaders()
         }
       });
 
