@@ -1,3 +1,4 @@
+// Load environment configuration (Railway sets vars directly, no .env needed)
 import './config/env.js';
 import express from 'express';
 import cors from 'cors';

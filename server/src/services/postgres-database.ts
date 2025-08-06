@@ -3,6 +3,16 @@ import { User, ChildProfile, Story, Illustration, StoryIllustration } from '../.
 
 const { Pool } = pg;
 
+// Debug database connection
+console.log('PostgreSQL connection debug:');
+console.log('DATABASE_URL available:', !!process.env.DATABASE_URL);
+console.log('NODE_ENV:', process.env.NODE_ENV);
+console.log('DATABASE_URL length:', process.env.DATABASE_URL?.length || 0);
+
+if (!process.env.DATABASE_URL) {
+  throw new Error('DATABASE_URL environment variable is required');
+}
+
 // Create a connection pool
 const pool = new Pool({
   connectionString: process.env.DATABASE_URL,
