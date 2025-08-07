@@ -169,19 +169,25 @@ export async function generateStorySimple(
     throw new Error('OpenRouter API key not configured');
   }
 
+  const targetWordCount = options.word_count || 500;
+  // Estimate tokens needed (roughly 1.3 tokens per word for English text, plus title/formatting)
+  const estimatedTokens = Math.ceil(targetWordCount * 1.5) + 200;
+  
   const systemPrompt = `You are a talented children's story writer. Create an engaging, age-appropriate bedtime story.`;
   
   const userPrompt = `${prompt}
   
 Requirements:
 - Reading level: ${options.reading_level || 'beginner'}
-- Approximate word count: ${options.word_count || 500}
+- Target word count: EXACTLY ${targetWordCount} words (the story content only, not including title)
 ${options.theme ? `- Theme: ${options.theme}` : ''}
+
+IMPORTANT: The story must be ${targetWordCount} words long. Please count carefully.
 
 Please format your response as:
 TITLE: [Story Title]
 ---
-[Story Content]`;
+[Story Content of exactly ${targetWordCount} words]`;
 
   try {
     const requestBody = {
@@ -191,12 +197,14 @@ TITLE: [Story Title]
         { role: 'user', content: userPrompt }
       ],
       temperature: 0.8,
-      max_tokens: 2000,
+      max_tokens: estimatedTokens,
       stream: false
     };
 
     console.log('OpenRouter simple generation request:', {
       model: requestBody.model,
+      targetWordCount: targetWordCount,
+      maxTokens: estimatedTokens,
       promptLength: userPrompt.length
     });
 

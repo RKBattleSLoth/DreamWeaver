@@ -161,7 +161,7 @@ export function StoryList({ onViewStory }: StoryListProps) {
     <div className="space-y-8">
       {favoriteStories.length > 0 && (
         <section>
-          <h2 className="text-xl font-semibold text-gray-800 mb-4 flex items-center">
+          <h2 className="text-xl font-semibold text-gray-800 dark:text-gray-200 mb-4 flex items-center">
             <svg className="w-5 h-5 text-red-500 mr-2" fill="currentColor" viewBox="0 0 20 20">
               <path
                 fillRule="evenodd"
@@ -181,7 +181,7 @@ export function StoryList({ onViewStory }: StoryListProps) {
 
       {regularStories.length > 0 && (
         <section>
-          <h2 className="text-xl font-semibold text-gray-800 mb-4">
+          <h2 className="text-xl font-semibold text-gray-800 dark:text-gray-200 mb-4">
             {favoriteStories.length > 0 ? 'Other Stories' : 'Your Stories'}
           </h2>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
