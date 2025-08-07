@@ -156,6 +156,88 @@ TITLE: [Story Title]
   }
 }
 
+// Simple wrapper for backward compatibility
+export async function generateStorySimple(
+  prompt: string,
+  options: {
+    reading_level?: string;
+    word_count?: number;
+    theme?: string;
+  } = {}
+): Promise<{ title: string; content: string }> {
+  if (!OPENROUTER_API_KEY) {
+    throw new Error('OpenRouter API key not configured');
+  }
+
+  const systemPrompt = `You are a talented children's story writer. Create an engaging, age-appropriate bedtime story.`;
+  
+  const userPrompt = `${prompt}
+  
+Requirements:
+- Reading level: ${options.reading_level || 'beginner'}
+- Approximate word count: ${options.word_count || 500}
+${options.theme ? `- Theme: ${options.theme}` : ''}
+
+Please format your response as:
+TITLE: [Story Title]
+---
+[Story Content]`;
+
+  try {
+    const requestBody = {
+      model: 'anthropic/claude-3-haiku',
+      messages: [
+        { role: 'system', content: systemPrompt },
+        { role: 'user', content: userPrompt }
+      ],
+      temperature: 0.8,
+      max_tokens: 2000,
+      stream: false
+    };
+
+    console.log('OpenRouter simple generation request:', {
+      model: requestBody.model,
+      promptLength: userPrompt.length
+    });
+
+    const response = await fetch(OPENROUTER_API_URL, {
+      method: 'POST',
+      headers: {
+        'Authorization': `Bearer ${OPENROUTER_API_KEY}`,
+        'Content-Type': 'application/json',
+        'HTTP-Referer': 'https://storytime-ai.com',
+        'X-Title': 'StoryTime AI'
+      },
+      body: JSON.stringify(requestBody)
+    });
+
+    if (!response.ok) {
+      const error = await response.json();
+      console.error('OpenRouter API error:', error);
+      throw new Error(`OpenRouter API error: ${error.error?.message || error.message || response.statusText}`);
+    }
+
+    const data = await response.json();
+    const storyText = data.choices[0]?.message?.content;
+
+    if (!storyText) {
+      throw new Error('No story generated');
+    }
+
+    // Parse the response to extract title and content
+    const titleMatch = storyText.match(/TITLE:\s*(.+?)(?:\n|---)/);
+    const contentMatch = storyText.match(/---\s*\n([\s\S]+)/);
+
+    const title = titleMatch ? titleMatch[1].trim() : 'Untitled Story';
+    const content = contentMatch ? contentMatch[1].trim() : storyText;
+
+    return { title, content };
+  } catch (error) {
+    console.error('Error generating story:', error);
+    throw error;
+  }
+}
+
 // Get available models from OpenRouter (optional utility function)
 export async function getAvailableModels() {
   if (!OPENROUTER_API_KEY) {

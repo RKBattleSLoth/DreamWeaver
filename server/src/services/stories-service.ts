@@ -1,6 +1,6 @@
 import * as db from './db.js';
 import type { Story, StoryWithIllustrations, ChildProfile, GenerateStoryRequest } from '../../shared/types/index.js';
-import { generateStoryWithOpenRouter } from './openrouter.js';
+import { generateStoryWithOpenRouter, generateStorySimple } from './openrouter.js';
 
 export async function getStoriesByUserId(userId: string): Promise<Story[]> {
   try {
@@ -165,7 +165,7 @@ export async function generateAndSaveStory(
       `Create a ${params.reading_level || 'beginner'} level story about ${params.theme || 'adventure'} 
        ${childProfile ? `for a ${childProfile.age} year old child` : ''}`;
     
-    const { title, content } = await generateStoryWithOpenRouter(prompt, {
+    const { title, content } = await generateStorySimple(prompt, {
       reading_level: params.reading_level || childProfile?.reading_level || 'beginner',
       word_count: params.word_count || 500,
       theme: params.theme
