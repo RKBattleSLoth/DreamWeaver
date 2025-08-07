@@ -176,9 +176,24 @@ export async function generateAndSaveStory(
     });
 
     // Generate the story content using AI
-    const prompt = params.custom_prompt || 
-      `Create a ${params.reading_level || 'beginner'} level story about ${params.theme || 'adventure'} 
-       ${childProfile ? `for a ${childProfile.age} year old child` : ''}`;
+    let prompt = params.custom_prompt;
+    
+    if (!prompt && childProfile) {
+      // Create personalized prompt
+      const isAboutChild = params.story_about === 'child';
+      const mainCharacterName = isAboutChild ? childProfile.name : (params.custom_character_name || 'the main character');
+      
+      if (isAboutChild) {
+        prompt = `Write a ${params.reading_level || 'beginner'} level bedtime story for ${childProfile.name}. The story should be about ${childProfile.name} and focus on the theme of ${params.theme || 'adventure'}. The story should be appropriate for a ${childProfile.age} year old child.`;
+      } else {
+        prompt = `Write a ${params.reading_level || 'beginner'} level bedtime story for ${childProfile.name}. The story should be about a character named ${mainCharacterName} and focus on the theme of ${params.theme || 'adventure'}. The story should be appropriate for a ${childProfile.age} year old child.`;
+      }
+    } else if (!prompt) {
+      // Fallback for no child profile
+      prompt = `Create a ${params.reading_level || 'beginner'} level story about ${params.theme || 'adventure'}`;
+    }
+    
+    console.log('Generated prompt:', prompt);
     
     const { title, content } = await generateStorySimple(prompt, {
       reading_level: params.reading_level || childProfile?.reading_level || 'beginner',
