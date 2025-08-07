@@ -1,6 +1,7 @@
 import * as db from './db.js';
 import type { Story, StoryWithIllustrations, ChildProfile, GenerateStoryRequest } from '../../shared/types/index.js';
 import { generateStoryWithOpenRouter, generateStorySimple } from './openrouter.js';
+import { STORY_LENGTHS } from '../../shared/constants/index.js';
 
 export async function getStoriesByUserId(userId: string): Promise<Story[]> {
   try {
@@ -160,6 +161,20 @@ export async function generateAndSaveStory(
       params
     });
 
+    // Calculate the target word count
+    let targetWordCount = 500; // default
+    if (params.story_length === 'custom' && params.custom_word_count) {
+      targetWordCount = params.custom_word_count;
+    } else if (params.story_length && params.story_length !== 'custom') {
+      targetWordCount = STORY_LENGTHS[params.story_length].words;
+    }
+    
+    console.log('Story generation word count:', {
+      story_length: params.story_length,
+      custom_word_count: params.custom_word_count,
+      targetWordCount
+    });
+
     // Generate the story content using AI
     const prompt = params.custom_prompt || 
       `Create a ${params.reading_level || 'beginner'} level story about ${params.theme || 'adventure'} 
@@ -167,7 +182,7 @@ export async function generateAndSaveStory(
     
     const { title, content } = await generateStorySimple(prompt, {
       reading_level: params.reading_level || childProfile?.reading_level || 'beginner',
-      word_count: params.word_count || 500,
+      word_count: targetWordCount,
       theme: params.theme
     });
 

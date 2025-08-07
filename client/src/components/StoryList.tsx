@@ -35,10 +35,10 @@ function StoryCard({ story, onView }: StoryCardProps) {
   return (
     <div
       onClick={() => onView(story)}
-      className="bg-white rounded-lg shadow-md p-4 cursor-pointer hover:shadow-lg transition-shadow"
+      className="bg-white dark:bg-gray-800 rounded-lg shadow-md p-4 cursor-pointer hover:shadow-lg transition-shadow"
     >
       <div className="flex justify-between items-start mb-2">
-        <h3 className="text-lg font-semibold text-gray-800 line-clamp-2">
+        <h3 className="text-lg font-semibold text-gray-800 dark:text-gray-200 line-clamp-2">
           {story.title}
         </h3>
         <div className="flex space-x-1 ml-2">
@@ -72,7 +72,7 @@ function StoryCard({ story, onView }: StoryCardProps) {
         </div>
       </div>
 
-      <p className="text-gray-600 text-sm line-clamp-3 mb-3">
+      <p className="text-gray-600 dark:text-gray-400 text-sm line-clamp-3 mb-3">
         {story.content}
       </p>
 
