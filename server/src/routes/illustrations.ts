@@ -10,8 +10,8 @@ import { ApiResponse } from '../../shared/types/index.js';
 
 const router = Router();
 
-// Serve illustration images - using token-based auth for images
-// This route is placed before the auth middleware to handle auth differently
+// Serve illustration images - public access for now since <img> tags can't send auth headers
+// TODO: Implement signed URLs or session-based auth for better security
 router.get('/image/:filename', async (req: Request<{ filename: string }>, res: Response) => {
   try {
     const { fileStorage, StorageBuckets } = await import('../services/file-storage.js');
@@ -26,78 +26,69 @@ router.get('/image/:filename', async (req: Request<{ filename: string }>, res: R
       });
     }
 
-    // For development, serve images without auth check
-    if (process.env.NODE_ENV === 'development') {
-      try {
-        const imageBuffer = await fileStorage.download(StorageBuckets.ILLUSTRATIONS, filename);
-        
-        // Set appropriate content type based on file extension
-        const ext = filename.split('.').pop()?.toLowerCase();
-        const contentType = ext === 'jpg' || ext === 'jpeg' ? 'image/jpeg' : 
-                           ext === 'png' ? 'image/png' : 
-                           ext === 'webp' ? 'image/webp' : 
-                           ext === 'gif' ? 'image/gif' : 'application/octet-stream';
-        
-        res.set({
-          'Content-Type': contentType,
-          'Cache-Control': 'public, max-age=31536000', // Cache for 1 year
-          'Content-Length': imageBuffer.length.toString()
-        });
-        
-        return res.send(imageBuffer);
-      } catch (error: any) {
-        console.error('Error serving illustration image:', error);
+    try {
+      // Download the image from storage
+      const imageBuffer = await fileStorage.download(StorageBuckets.ILLUSTRATIONS, filename);
+      
+      if (!imageBuffer) {
         return res.status(404).json({
           success: false,
           error: { message: 'Image not found' }
         });
       }
-    }
-
-    // In production, require authentication
-    // Check if user owns this illustration
-    const illustrations = await getIllustrationsByUserId(req.user!.id);
-    const illustration = illustrations.find(ill => ill.image_path === filename);
-    
-    if (!illustration) {
-      return res.status(404).json({
-        success: false,
-        error: { message: 'Image not found or access denied' }
+      
+      // Set appropriate content type based on file extension
+      const ext = filename.split('.').pop()?.toLowerCase();
+      const contentType = ext === 'jpg' || ext === 'jpeg' ? 'image/jpeg' : 
+                         ext === 'png' ? 'image/png' : 
+                         ext === 'webp' ? 'image/webp' : 
+                         ext === 'gif' ? 'image/gif' : 'application/octet-stream';
+      
+      res.set({
+        'Content-Type': contentType,
+        'Cache-Control': 'public, max-age=3600', // Cache for 1 hour
+        'Content-Length': imageBuffer.length.toString()
       });
-    }
-
-    // Serve the image file
-    const imageBuffer = await fileStorage.download(StorageBuckets.ILLUSTRATIONS, filename);
-    
-    // Set appropriate content type based on file extension
-    const ext = filename.split('.').pop()?.toLowerCase();
-    const contentType = ext === 'jpg' || ext === 'jpeg' ? 'image/jpeg' : 
-                       ext === 'png' ? 'image/png' : 
-                       ext === 'webp' ? 'image/webp' : 
-                       ext === 'gif' ? 'image/gif' : 'application/octet-stream';
-    
-    res.set({
-      'Content-Type': contentType,
-      'Cache-Control': 'public, max-age=31536000', // Cache for 1 year
-      'Content-Length': imageBuffer.length.toString()
-    });
-    
-    res.send(imageBuffer);
-
-  } catch (error: any) {
-    console.error('Error serving illustration image:', error);
-    
-    if (error.message.includes('not found')) {
-      res.status(404).json({
+      
+      return res.send(imageBuffer);
+      
+    } catch (downloadError: any) {
+      console.error('Error downloading image:', downloadError);
+      return res.status(404).json({
         success: false,
         error: { message: 'Image not found' }
       });
-    } else {
-      res.status(500).json({
-        success: false,
-        error: { message: 'Failed to serve image' }
-      });
     }
+
+  } catch (error: any) {
+    console.error('Error serving illustration image:', error);
+    return res.status(500).json({
+      success: false,
+      error: { message: 'Failed to serve image' }
+    });
+  }
+});
+
+// Debug endpoint to check storage (remove in production)
+router.get('/debug/storage', async (req: Request, res: Response) => {
+  try {
+    const { fileStorage, StorageBuckets } = await import('../services/file-storage.js');
+    const files = await fileStorage.list(StorageBuckets.ILLUSTRATIONS);
+    
+    res.json({
+      success: true,
+      data: {
+        storageType: process.env.STORAGE_TYPE || 'local',
+        storagePath: process.env.LOCAL_STORAGE_PATH || './storage',
+        filesCount: files.length,
+        files: files.slice(0, 5).map(f => f.name) // First 5 files
+      }
+    });
+  } catch (error: any) {
+    res.status(500).json({
+      success: false,
+      error: { message: error.message }
+    });
   }
 });
 
