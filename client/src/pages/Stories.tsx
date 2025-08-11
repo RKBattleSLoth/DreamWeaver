@@ -2,11 +2,13 @@ import React, { useState } from 'react';
 import { StoryGenerator } from '../components/StoryGenerator';
 import { StoryList } from '../components/StoryList';
 import { StoryViewer } from '../components/StoryViewer';
+import { useActiveChildProfile } from '../hooks/useChildProfiles';
 import type { Story } from '../shared/types';
 
 export function Stories() {
   const [activeTab, setActiveTab] = useState<'generate' | 'browse'>('browse');
   const [selectedStory, setSelectedStory] = useState<Story | null>(null);
+  const { data: activeChildProfile } = useActiveChildProfile();
 
   const handleViewStory = (story: Story) => {
     setSelectedStory(story);
@@ -60,6 +62,7 @@ export function Stories() {
       {selectedStory && (
         <StoryViewer
           story={selectedStory}
+          childProfile={activeChildProfile || undefined}
           onClose={handleCloseViewer}
         />
       )}

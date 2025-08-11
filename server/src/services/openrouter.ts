@@ -246,6 +246,76 @@ TITLE: [Story Title]
   }
 }
 
+// DALL-E 3 Image Generation via OpenRouter
+interface ImageGenerationRequest {
+  prompt: string;
+  model?: string;
+  size?: '1024x1024' | '1024x1792' | '1792x1024';
+  quality?: 'standard' | 'hd';
+  style?: 'vivid' | 'natural';
+}
+
+export async function generateImageWithDALLE3({
+  prompt,
+  model = 'openai/dall-e-3',
+  size = '1024x1024',
+  quality = 'standard',
+  style = 'vivid'
+}: ImageGenerationRequest): Promise<{ url: string; revised_prompt?: string }> {
+  console.log('Image generation request (redirecting to Replicate):', {
+    model,
+    size,
+    quality,
+    style,
+    promptLength: prompt.length
+  });
+
+  try {
+    // Use Replicate for image generation
+    const { generateImageWithReplicate } = await import('./replicate.js');
+    
+    return await generateImageWithReplicate({
+      prompt,
+      model: 'sdxl', // Using SDXL model from Replicate
+      width: parseInt(size.split('x')[0]),
+      height: parseInt(size.split('x')[1]),
+      guidance_scale: quality === 'hd' ? 10 : 7.5,
+      num_inference_steps: quality === 'hd' ? 30 : 20
+    });
+  } catch (error) {
+    console.error('Error in image generation:', error);
+    throw error;
+  }
+}
+
+// Generate multiple variations with different prompts
+export async function generateImageVariations(
+  basePrompt: string,
+  variations: Array<{
+    style: string;
+    perspective: string;
+    mood: string;
+    modifier: string;
+  }>
+): Promise<Array<{
+  url: string;
+  prompt: string;
+  variation: typeof variations[0];
+  revised_prompt?: string;
+}>> {
+  console.log(`Generating ${variations.length} image variations (using Replicate)`);
+  
+  try {
+    // Import and use Replicate for variations
+    const { generateImageVariationsWithReplicate } = await import('./replicate.js');
+    
+    return await generateImageVariationsWithReplicate(basePrompt, variations, 'sdxl');
+  } catch (error) {
+    console.error('Error generating image variations:', error);
+    throw new Error('Failed to generate image variations');
+  }
+}
+
 // Get available models from OpenRouter (optional utility function)
 export async function getAvailableModels() {
   if (!OPENROUTER_API_KEY) {

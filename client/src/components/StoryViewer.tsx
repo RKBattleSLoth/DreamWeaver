@@ -1,17 +1,20 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { useToggleFavoriteStory, useDeleteStory } from '../hooks/useStories';
 import { formatDistanceToNow } from 'date-fns';
-import type { Story } from '../shared/types';
+import { IllustrationGenerator } from './IllustrationGenerator';
+import type { Story, ChildProfile } from '../shared/types';
 
 interface StoryViewerProps {
   story: Story;
+  childProfile?: ChildProfile; // Optional child profile for illustration generation
   onClose: () => void;
   onEdit?: (story: Story) => void;
 }
 
-export function StoryViewer({ story, onClose, onEdit }: StoryViewerProps) {
+export function StoryViewer({ story, childProfile, onClose, onEdit }: StoryViewerProps) {
   const toggleFavorite = useToggleFavoriteStory();
   const deleteStory = useDeleteStory();
+  const [showIllustrationGenerator, setShowIllustrationGenerator] = useState(false);
 
   const handleToggleFavorite = async () => {
     try {
@@ -78,6 +81,7 @@ export function StoryViewer({ story, onClose, onEdit }: StoryViewerProps) {
               className={`p-2 rounded-full hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors ${
                 story.is_favorite ? 'text-red-500' : 'text-gray-400 dark:text-gray-500'
               }`}
+              title="Toggle favorite"
             >
               <svg className="w-6 h-6" fill="currentColor" viewBox="0 0 20 20">
                 <path
@@ -87,10 +91,22 @@ export function StoryViewer({ story, onClose, onEdit }: StoryViewerProps) {
                 />
               </svg>
             </button>
+            {childProfile && (
+              <button
+                onClick={() => setShowIllustrationGenerator(true)}
+                className="p-2 rounded-full hover:bg-gray-100 dark:hover:bg-gray-700 text-gray-400 dark:text-gray-500 hover:text-purple-500 transition-colors"
+                title="Generate illustrations"
+              >
+                <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16l4.586-4.586a2 2 0 112.828 2.828L16 19m-2-2v2a2 2 0 01-2 2H4a2 2 0 01-2-2v-2m0-4l4.586-4.586a2 2 0 112.828 2.828L12 14m-2-2v2a2 2 0 01-2 2H2a2 2 0 01-2-2v-2" />
+                </svg>
+              </button>
+            )}
             {onEdit && (
               <button
                 onClick={() => onEdit(story)}
                 className="p-2 rounded-full hover:bg-gray-100 dark:hover:bg-gray-700 text-gray-400 dark:text-gray-500 hover:text-blue-500 transition-colors"
+                title="Edit story"
               >
                 <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path
@@ -193,6 +209,15 @@ export function StoryViewer({ story, onClose, onEdit }: StoryViewerProps) {
           </div>
         </div>
       </div>
+
+      {/* Illustration Generator Modal */}
+      {showIllustrationGenerator && childProfile && (
+        <IllustrationGenerator
+          story={story}
+          childProfile={childProfile}
+          onClose={() => setShowIllustrationGenerator(false)}
+        />
+      )}
     </div>
   );
 }

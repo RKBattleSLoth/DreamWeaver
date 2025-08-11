@@ -43,16 +43,30 @@ export interface Story {
 export interface Illustration {
   id: string;
   user_id: string;
+  session_id?: string;
+  
+  // Basic info
   title?: string;
   description?: string;
-  image_url: string;
-  image_path: string;
-  art_style?: string;
+  image_path: string; // Single source of truth for file location
+  
+  // Generation metadata
+  art_style: string; // 'watercolor', 'cartoon', 'sketch', 'digital'
   generation_prompt?: string;
-  width?: number;
-  height?: number;
-  file_size?: number;
-  tags?: string[];
+  dalle_revised_prompt?: string; // What DALL-E actually used
+  
+  // Collaborative workflow fields
+  generation_batch_id?: string;      // Groups variations generated together
+  is_canonical?: boolean;            // True if this is the final selected image
+  parent_illustration_id?: string;   // Links to favorite from previous round
+  iteration_round?: number;          // Which round of iteration (1, 2, 3...)
+  
+  // World-building links
+  target_entity_type?: 'character' | 'setting' | 'element' | 'scene';
+  depicts_character_id?: string;
+  depicts_setting_id?: string;
+  depicts_element_id?: string;
+  
   created_at: string;
   updated_at: string;
 }
@@ -123,6 +137,7 @@ export interface GenerateStoryRequest {
   reading_level?: 'beginner' | 'intermediate' | 'advanced';
   story_about?: 'child' | 'other_character';
   custom_character_name?: string;
+  illustration_style?: string;
 }
 
 export interface CreateStoryRequest {
@@ -160,6 +175,54 @@ export interface UpdateIllustrationRequest extends Partial<CreateIllustrationReq
 
 export interface GenerateIllustrationResponse {
   illustration: Illustration;
+}
+
+// Collaborative Illustration Generation
+export interface IllustrationGenerationRequest {
+  userId?: string; // Filled by server from auth
+  storyId?: string;
+  childProfile: ChildProfile;
+  scenePrompt: string;
+  sceneType: 'character' | 'scene' | 'object' | 'setting';
+}
+
+export interface StartIllustrationSessionResponse {
+  sessionId: string;
+  variations: Illustration[];
+}
+
+export interface SelectFavoriteRequest {
+  sessionId: string;
+  selectedId: string;
+  action: 'make_canon' | 'iterate';
+  currentRound: number;
+}
+
+export interface SelectFavoriteResponse {
+  action: string;
+  canonicalIllustration?: Illustration;
+  newVariations?: Illustration[];
+}
+
+export interface GenerateVariationsRequest {
+  sessionId: string;
+  round: number;
+  basePrompt: string;
+  favoriteIllustrationId?: string;
+}
+
+export interface IllustrationSession {
+  id: string;
+  user_id: string;
+  story_id?: string;
+  target_entity_type?: 'character' | 'setting' | 'element' | 'scene';
+  target_entity_id?: string;
+  scene_prompt: string;
+  current_round: number;
+  max_rounds: number;
+  status: 'active' | 'completed' | 'abandoned';
+  created_at: string;
+  updated_at: string;
 }
 
 // Gallery

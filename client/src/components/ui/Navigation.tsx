@@ -22,41 +22,41 @@ const Navigation: React.FC = () => {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between h-16">
           <div className="flex items-center space-x-8">
-            <Link href="/">
-              <a className="text-xl font-bold text-gray-900 dark:text-white">
-                StoryTime AI
-              </a>
+            <Link href="/" className="text-xl font-bold text-gray-900 dark:text-white">
+              StoryTime AI
             </Link>
             
             <div className="flex space-x-4">
-              <Link href="/">
-                <a className={`px-3 py-2 rounded-md text-sm font-medium transition-colors ${
-                  isActive('/') 
-                    ? 'bg-blue-100 text-blue-700 dark:bg-blue-900 dark:text-blue-200' 
-                    : 'text-gray-600 hover:text-gray-900 dark:text-gray-300 dark:hover:text-white'
-                }`}>
-                  Dashboard
-                </a>
+              <Link href="/" className={`px-3 py-2 rounded-md text-sm font-medium transition-colors ${
+                isActive('/') 
+                  ? 'bg-blue-100 text-blue-700 dark:bg-blue-900 dark:text-blue-200' 
+                  : 'text-gray-600 hover:text-gray-900 dark:text-gray-300 dark:hover:text-white'
+              }`}>
+                Dashboard
               </Link>
               
-              <Link href="/stories">
-                <a className={`px-3 py-2 rounded-md text-sm font-medium transition-colors ${
-                  isActive('/stories') 
-                    ? 'bg-blue-100 text-blue-700 dark:bg-blue-900 dark:text-blue-200' 
-                    : 'text-gray-600 hover:text-gray-900 dark:text-gray-300 dark:hover:text-white'
-                }`}>
-                  Stories
-                </a>
+              <Link href="/stories" className={`px-3 py-2 rounded-md text-sm font-medium transition-colors ${
+                isActive('/stories') 
+                  ? 'bg-blue-100 text-blue-700 dark:bg-blue-900 dark:text-blue-200' 
+                  : 'text-gray-600 hover:text-gray-900 dark:text-gray-300 dark:hover:text-white'
+              }`}>
+                Stories
               </Link>
               
-              <Link href="/profiles">
-                <a className={`px-3 py-2 rounded-md text-sm font-medium transition-colors ${
-                  isActive('/profiles') 
-                    ? 'bg-blue-100 text-blue-700 dark:bg-blue-900 dark:text-blue-200' 
-                    : 'text-gray-600 hover:text-gray-900 dark:text-gray-300 dark:hover:text-white'
-                }`}>
-                  Profiles
-                </a>
+              <Link href="/gallery" className={`px-3 py-2 rounded-md text-sm font-medium transition-colors ${
+                isActive('/gallery') 
+                  ? 'bg-blue-100 text-blue-700 dark:bg-blue-900 dark:text-blue-200' 
+                  : 'text-gray-600 hover:text-gray-900 dark:text-gray-300 dark:hover:text-white'
+              }`}>
+                Gallery
+              </Link>
+              
+              <Link href="/profiles" className={`px-3 py-2 rounded-md text-sm font-medium transition-colors ${
+                isActive('/profiles') 
+                  ? 'bg-blue-100 text-blue-700 dark:bg-blue-900 dark:text-blue-200' 
+                  : 'text-gray-600 hover:text-gray-900 dark:text-gray-300 dark:hover:text-white'
+              }`}>
+                Profiles
               </Link>
             </div>
           </div>

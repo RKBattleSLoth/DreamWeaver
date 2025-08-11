@@ -68,8 +68,15 @@ router.post('/',
   validateBody(childProfileSchemas.create),
   async (req: Request<{}, ApiResponse, CreateChildProfileRequest>, res: Response) => {
     try {
-      // Pass the auth token to the service
-      const profile = await createChildProfile(req.userId!, req.body);
+      // Transform CreateChildProfileRequest to the format expected by the service
+      const profileData = {
+        ...req.body,
+        content_safety: req.body.content_safety || 'strict',
+        preferred_art_style: req.body.preferred_art_style || 'watercolor',
+        is_active: false // Default to false, user can activate later
+      };
+      
+      const profile = await createChildProfile(req.userId!, profileData);
       
       res.status(201).json({
         success: true,

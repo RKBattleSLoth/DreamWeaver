@@ -1,0 +1,14 @@
+{
+  "sessionId": "57d7fc01-578b-4fe8-b672-0708ccc59379",
+  "batchId": "18ce5bf2-5bcf-4d13-8697-9bc7acdbd00b",
+  "round": 1,
+  "variation": 2,
+  "originalUrl": "https://replicate.delivery/xezq/yQ0ohGv9OapjGZ2RVaQ2FH9IENR5L4rvDQCfyQqjE2rw53kKA/out-0.png",
+  "prompt": "Create a children's book illustration for Isa, age 18.\n\nScene: Isa has regained her confidence after talking to the fairy and is shooting true again\nType: scene\n\nChild's interests: archery\nReading level: intermediate\n\nRequirements:\n- Age-appropriate for 18 year old\n- Safe and positive imagery\n- Engaging and imaginative\n- Rich in storytelling details\n- Professional children's book illustration quality\n- Should spark wonder and curiosity\n\nStyle: oil_painting\nPerspective: medium_shot  \nMood: balanced\nBeautiful oil painting with rich textures, classical artistic style, and warm lighting. Medium shot with balanced composition focusing on main subjects\n\nHigh quality children's book illustration, safe for all ages, whimsical and engaging, digital art, colorful, detailed",
+  "revisedPrompt": "Create a children's book illustration for Isa, age 18.\n\nScene: Isa has regained her confidence after talking to the fairy and is shooting true again\nType: scene\n\nChild's interests: archery\nReading level: intermediate\n\nRequirements:\n- Age-appropriate for 18 year old\n- Safe and positive imagery\n- Engaging and imaginative\n- Rich in storytelling details\n- Professional children's book illustration quality\n- Should spark wonder and curiosity\n\nStyle: oil_painting\nPerspective: medium_shot  \nMood: balanced\nBeautiful oil painting with rich textures, classical artistic style, and warm lighting. Medium shot with balanced composition focusing on main subjects\n\nHigh quality children's book illustration, safe for all ages, whimsical and engaging, digital art, colorful, detailed",
+  "style": "oil_painting",
+  "perspective": "medium_shot",
+  "mimeType": "image/png",
+  "originalName": "session_57d7fc01-578b-4fe8-b672-0708ccc59379_r1_v2_1754876650314.png",
+  "createdAt": "2025-08-11T01:44:10.316Z"
+}

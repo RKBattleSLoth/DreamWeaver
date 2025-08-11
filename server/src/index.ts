@@ -19,14 +19,26 @@ console.log('USE_POSTGRES:', process.env.USE_POSTGRES || 'false');
 console.log('STORAGE_TYPE:', process.env.STORAGE_TYPE || 'local');
 
 const app = express();
-const PORT = process.env.PORT || 8080;
+const PORT = parseInt(process.env.PORT || '3001', 10);
 
 // Security middleware
-app.use(helmet());
+app.use(helmet({
+  contentSecurityPolicy: {
+    directives: {
+      defaultSrc: ["'self'"],
+      styleSrc: ["'self'", "'unsafe-inline'"],
+      scriptSrc: ["'self'"],
+      imgSrc: ["'self'", "data:", "https:"],
+      connectSrc: ["'self'"]
+    },
+  },
+  // Disable HTTPS enforcement in development
+  hsts: process.env.NODE_ENV !== 'development'
+}));
 app.use(cors({
   origin: process.env.CORS_ORIGIN 
     ? process.env.CORS_ORIGIN.split(',') 
-    : ['http://localhost:5173'],
+    : ['http://localhost:5173', 'http://127.0.0.1:5173'],
   credentials: true
 }));
 
@@ -68,9 +80,30 @@ app.get('/api/health', async (req, res) => {
   });
 });
 
+// Test Replicate connection endpoint
+app.get('/api/test-replicate', async (req, res) => {
+  try {
+    const { testReplicateConnection } = await import('./services/replicate.js');
+    const result = await testReplicateConnection();
+    res.json({ 
+      success: true, 
+      replicate: result ? 'connected' : 'failed',
+      message: result ? 'Replicate connection test passed' : 'Replicate connection test failed'
+    });
+  } catch (error: any) {
+    console.error('Replicate test error:', error);
+    res.status(500).json({ 
+      success: false, 
+      error: error.message,
+      replicate: 'error'
+    });
+  }
+});
+
 // Serve static files for uploads (local storage)
 if (process.env.STORAGE_TYPE === 'local' || !process.env.STORAGE_TYPE) {
-  const uploadDir = path.join(__dirname, '../..', process.env.UPLOAD_DIR || 'uploads');
+  const uploadDir = path.join(__dirname, '..', process.env.UPLOAD_DIR || 'storage');
+  console.log('Serving static files from:', uploadDir);
   app.use('/uploads', express.static(uploadDir));
 }
 
@@ -85,13 +118,43 @@ app.use('/api/profiles', childProfileRoutes);
 import storyRoutes from './routes/stories.js';
 app.use('/api/stories', storyRoutes);
 
-// 404 handler
-app.use('*', (req, res) => {
-  res.status(404).json({
-    success: false,
-    error: { message: 'Route not found' }
+// Import storage routes (for local development)
+import storageRoutes from './routes/storage.js';
+app.use('/api', storageRoutes);
+
+// Import illustration routes
+import illustrationRoutes from './routes/illustrations.js';
+app.use('/api/illustrations', illustrationRoutes);
+
+// Import story-illustration linking routes
+import storyIllustrationRoutes from './routes/story-illustrations.js';
+app.use('/api/story-illustrations', storyIllustrationRoutes);
+
+// Serve built client files in development
+if (process.env.NODE_ENV === 'development') {
+  const clientDistDir = path.join(__dirname, '../../client/dist');
+  app.use(express.static(clientDistDir));
+  
+  // Serve index.html for client-side routing
+  app.get('*', (req, res) => {
+    if (!req.path.startsWith('/api')) {
+      res.sendFile(path.join(clientDistDir, 'index.html'));
+    } else {
+      res.status(404).json({
+        success: false,
+        error: { message: 'API route not found' }
+      });
+    }
   });
-});
+} else {
+  // 404 handler for production
+  app.use('*', (req, res) => {
+    res.status(404).json({
+      success: false,
+      error: { message: 'Route not found' }
+    });
+  });
+}
 
 // Global error handler
 app.use((err: any, req: express.Request, res: express.Response, next: express.NextFunction) => {

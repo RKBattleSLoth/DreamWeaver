@@ -35,6 +35,8 @@ export const {
 // Export database-specific utilities
 export const checkDatabaseConnection = postgresDb.checkDatabaseConnection;
 export const closeDatabaseConnection = postgresDb.closeDatabaseConnection;
+export const query = postgresDb.query;
+export const getClient = postgresDb.getClient;
 
 // Log which database is being used
 console.log('Using PostgreSQL database');

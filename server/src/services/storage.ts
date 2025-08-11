@@ -8,12 +8,12 @@ const __dirname = path.dirname(__filename);
 
 // Storage configuration
 const STORAGE_TYPE = process.env.STORAGE_TYPE || 'local';
-const UPLOAD_DIR = process.env.UPLOAD_DIR || 'uploads';
-const BASE_URL = process.env.APP_URL || 'http://localhost:3000';
+const UPLOAD_DIR = process.env.UPLOAD_DIR || 'storage';
+const BASE_URL = process.env.APP_URL || 'http://localhost:3001';
 
 // Ensure upload directory exists
 async function ensureUploadDir(subdir?: string) {
-  const uploadPath = path.join(__dirname, '../../..', UPLOAD_DIR, subdir || '');
+  const uploadPath = path.join(__dirname, '../..', UPLOAD_DIR, subdir || '');
   await fs.mkdir(uploadPath, { recursive: true });
   return uploadPath;
 }

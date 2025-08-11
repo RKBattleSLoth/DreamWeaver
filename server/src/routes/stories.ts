@@ -79,14 +79,24 @@ router.post('/generate',
     });
     
     try {
-      // Get active child profile if not specified
+      // Get child profile - either the specified one or the active one
       let childProfile = null;
-      if (!req.body.child_profile_id) {
+      if (req.body.child_profile_id) {
+        console.log('Getting child profile by ID:', req.body.child_profile_id);
+        // Get all child profiles and find the specified one
+        const { getChildProfilesByUserId } = await import('../services/child-profiles-service.js');
+        const profiles = await getChildProfilesByUserId(req.user!.id);
+        childProfile = profiles.find(p => p.id === req.body.child_profile_id) || null;
+      } else {
         console.log('No child_profile_id provided, getting active profile...');
         childProfile = await getActiveChildProfile(req.user!.id);
-      } else {
-        console.log('Using provided child_profile_id:', req.body.child_profile_id);
       }
+      
+      console.log('Child profile for story generation:', childProfile ? {
+        id: childProfile.id,
+        name: childProfile.name,
+        age: childProfile.age
+      } : 'null');
 
       console.log('Calling generateAndSaveStory...');
       const story = await generateAndSaveStory(
@@ -117,7 +127,13 @@ router.post('/',
   validateBody(storySchemas.create),
   async (req: Request<{}, ApiResponse, CreateStoryRequest>, res: Response) => {
     try {
-      const story = await createStory(req.user!.id, req.body, req.authToken!);
+      // Transform CreateStoryRequest to include required fields
+      const storyData = {
+        ...req.body,
+        is_favorite: false // Default to false
+      };
+      
+      const story = await createStory(req.user!.id, storyData, req.authToken!);
       
       res.status(201).json({
         success: true,

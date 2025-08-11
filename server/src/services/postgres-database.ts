@@ -3,28 +3,36 @@ import { User, ChildProfile, Story, Illustration, StoryIllustration } from '../.
 
 const { Pool } = pg;
 
-// Debug database connection
-console.log('PostgreSQL connection debug:');
-console.log('DATABASE_URL available:', !!process.env.DATABASE_URL);
-console.log('NODE_ENV:', process.env.NODE_ENV);
-console.log('DATABASE_URL length:', process.env.DATABASE_URL?.length || 0);
+// Lazy initialization - don't create pool until first use
+let pool: pg.Pool | null = null;
 
-if (!process.env.DATABASE_URL) {
-  throw new Error('DATABASE_URL environment variable is required');
+function getPool(): pg.Pool {
+  if (!pool) {
+    console.log('PostgreSQL connection debug:');
+    console.log('DATABASE_URL available:', !!process.env.DATABASE_URL);
+    console.log('NODE_ENV:', process.env.NODE_ENV);
+    console.log('DATABASE_URL length:', process.env.DATABASE_URL?.length || 0);
+
+    if (!process.env.DATABASE_URL) {
+      throw new Error('DATABASE_URL environment variable is required');
+    }
+
+    console.log('Creating database pool (lazy initialization)...');
+    pool = new Pool({
+      connectionString: process.env.DATABASE_URL,
+      ssl: { rejectUnauthorized: false }, // Force SSL for Railway
+      max: 5, // Reduce pool size for development
+      idleTimeoutMillis: 10000, // Shorter idle timeout
+      connectionTimeoutMillis: 5000, // Longer connection timeout
+    });
+  }
+  return pool;
 }
-
-// Create a connection pool
-const pool = new Pool({
-  connectionString: process.env.DATABASE_URL,
-  ssl: process.env.NODE_ENV === 'production' ? { rejectUnauthorized: false } : undefined,
-  max: 20,
-  idleTimeoutMillis: 30000,
-  connectionTimeoutMillis: 2000,
-});
 
 // Helper function to handle database queries
 async function query<T>(text: string, params?: any[]): Promise<T[]> {
-  const client = await pool.connect();
+  const currentPool = getPool(); // Lazy initialization
+  const client = await currentPool.connect();
   try {
     const result = await client.query(text, params);
     return result.rows;
@@ -139,7 +147,8 @@ export async function deleteChildProfile(id: string, userId: string): Promise<vo
 
 export async function setActiveChildProfile(id: string, userId: string): Promise<ChildProfile> {
   // Transaction to deactivate all and activate one
-  const client = await pool.connect();
+  const currentPool = getPool();
+  const client = await currentPool.connect();
   try {
     await client.query('BEGIN');
     
@@ -268,27 +277,31 @@ export async function createIllustration(
 ): Promise<Illustration> {
   const text = `
     INSERT INTO illustrations (
-      user_id, title, description, file_path, storage_type,
-      public_url, art_style, generation_prompt, width, height,
-      file_size, mime_type, tags
+      user_id, session_id, title, description, image_path,
+      art_style, generation_prompt, dalle_revised_prompt,
+      generation_batch_id, is_canonical, parent_illustration_id, iteration_round,
+      target_entity_type, depicts_character_id, depicts_setting_id, depicts_element_id
     )
-    VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13)
+    VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16)
     RETURNING *
   `;
   const params = [
     userId,
+    illustrationData.session_id,
     illustrationData.title,
     illustrationData.description,
-    illustrationData.file_path || illustrationData.image_path, // Handle both field names
-    'local', // Default to local storage for now
-    illustrationData.public_url || illustrationData.image_url, // Handle both field names
+    illustrationData.image_path,
     illustrationData.art_style,
     illustrationData.generation_prompt,
-    illustrationData.width,
-    illustrationData.height,
-    illustrationData.file_size,
-    'image/png', // Default mime type
-    illustrationData.tags
+    illustrationData.dalle_revised_prompt,
+    illustrationData.generation_batch_id,
+    illustrationData.is_canonical || false,
+    illustrationData.parent_illustration_id,
+    illustrationData.iteration_round || 1,
+    illustrationData.target_entity_type,
+    illustrationData.depicts_character_id,
+    illustrationData.depicts_setting_id,
+    illustrationData.depicts_element_id
   ];
   const result = await queryOne<Illustration>(text, params);
   if (!result) throw new Error('Failed to create illustration');
@@ -438,5 +451,8 @@ export async function checkDatabaseConnection(): Promise<boolean> {
 
 // Close pool on shutdown
 export async function closeDatabaseConnection(): Promise<void> {
-  await pool.end();
+  if (pool) {
+    await pool.end();
+    pool = null;
+  }
 }

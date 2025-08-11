@@ -175,16 +175,39 @@ export async function generateAndSaveStory(
       targetWordCount
     });
 
-    // Generate the story content using AI
-    const prompt = params.custom_prompt || 
-      `Create a ${params.reading_level || 'beginner'} level story about ${params.theme || 'adventure'} 
-       ${childProfile ? `for a ${childProfile.age} year old child` : ''}`;
-    
-    const { title, content } = await generateStorySimple(prompt, {
-      reading_level: params.reading_level || childProfile?.reading_level || 'beginner',
-      word_count: targetWordCount,
-      theme: params.theme
-    });
+    // Generate the story content using AI with proper child profile support
+    let title: string;
+    let content: string;
+
+    if (childProfile) {
+      // Use the full OpenRouter function with child profile support
+      const storyResult = await generateStoryWithOpenRouter({
+        childProfile,
+        theme: params.theme,
+        customPrompt: params.custom_prompt,
+        storyLength: params.story_length || 'medium',
+        customWordCount: params.custom_word_count,
+        readingLevel: params.reading_level,
+        storyAbout: params.story_about || 'child',
+        customCharacterName: params.custom_character_name
+      });
+      
+      title = storyResult.title;
+      content = storyResult.content;
+    } else {
+      // Fallback to simple generation if no child profile
+      const prompt = params.custom_prompt || 
+        `Create a ${params.reading_level || 'beginner'} level story about ${params.theme || 'adventure'}`;
+      
+      const storyResult = await generateStorySimple(prompt, {
+        reading_level: params.reading_level || 'beginner',
+        word_count: targetWordCount,
+        theme: params.theme
+      });
+      
+      title = storyResult.title;
+      content = storyResult.content;
+    }
 
     const wordCount = content.split(/\s+/).length;
 
@@ -195,7 +218,9 @@ export async function generateAndSaveStory(
       theme: params.theme,
       reading_level: params.reading_level || childProfile?.reading_level,
       word_count: wordCount,
-      generation_prompt: prompt,
+      generation_prompt: childProfile 
+        ? `Story about ${params.story_about === 'child' ? childProfile.name : (params.custom_character_name || 'another character')} - Theme: ${params.theme}`
+        : params.custom_prompt || `Story about ${params.theme || 'adventure'}`,
       is_favorite: false
     };
 

@@ -1,0 +1,14 @@
+{
+  "sessionId": "367dbc4b-71d6-484f-b622-de7b35068e18",
+  "batchId": "fc9ff033-9bd9-497e-a2d8-08734c5fcec1",
+  "round": 1,
+  "variation": 2,
+  "originalUrl": "https://replicate.delivery/xezq/dy8ypZfabPWTY6UK8NIhD0vIbdrAud5QsK0S6iJueVFKUvJVA/out-0.png",
+  "prompt": "Create a children's book illustration for Isa, age 18.\n\nScene: A brave knight rescuing a dragon from a lonely castle\nType: scene\n\nChild's interests: archery\nReading level: intermediate\n\nRequirements:\n- Age-appropriate for 18 year old\n- Safe and positive imagery\n- Engaging and imaginative\n- Rich in storytelling details\n- Professional children's book illustration quality\n- Should spark wonder and curiosity\n\nStyle: cartoon\nPerspective: medium_shot  \nMood: balanced\nCheerful cartoon illustration with bold outlines, vibrant colors, and expressive characters. Medium shot with balanced composition focusing on main subjects\n\nHigh quality children's book illustration, safe for all ages, whimsical and engaging, digital art, colorful, detailed",
+  "revisedPrompt": "Create a children's book illustration for Isa, age 18.\n\nScene: A brave knight rescuing a dragon from a lonely castle\nType: scene\n\nChild's interests: archery\nReading level: intermediate\n\nRequirements:\n- Age-appropriate for 18 year old\n- Safe and positive imagery\n- Engaging and imaginative\n- Rich in storytelling details\n- Professional children's book illustration quality\n- Should spark wonder and curiosity\n\nStyle: cartoon\nPerspective: medium_shot  \nMood: balanced\nCheerful cartoon illustration with bold outlines, vibrant colors, and expressive characters. Medium shot with balanced composition focusing on main subjects\n\nHigh quality children's book illustration, safe for all ages, whimsical and engaging, digital art, colorful, detailed",
+  "style": "cartoon",
+  "perspective": "medium_shot",
+  "mimeType": "image/png",
+  "originalName": "session_367dbc4b-71d6-484f-b622-de7b35068e18_r1_v2_1754874642566.png",
+  "createdAt": "2025-08-11T01:10:42.568Z"
+}

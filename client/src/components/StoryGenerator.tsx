@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { useGenerateStory } from '../hooks/useStories';
 import { useChildProfiles } from '../hooks/useChildProfiles';
-import { STORY_THEMES, STORY_LENGTHS } from '../shared/constants';
+import { STORY_THEMES, STORY_LENGTHS, ILLUSTRATION_STYLES } from '../shared/constants';
 import type { GenerateStoryRequest } from '../shared/types';
 
 export function StoryGenerator() {
@@ -16,7 +16,8 @@ export function StoryGenerator() {
     custom_prompt: undefined,
     story_length: 'medium',
     reading_level: undefined,
-    story_about: 'child'
+    story_about: 'child',
+    illustration_style: undefined
   });
 
   const [customWordCount, setCustomWordCount] = useState<string>('500');
@@ -28,7 +29,8 @@ export function StoryGenerator() {
       setFormData(prev => ({
         ...prev,
         child_profile_id: activeProfile.id,
-        reading_level: activeProfile.reading_level
+        reading_level: activeProfile.reading_level,
+        illustration_style: activeProfile.preferred_art_style
       }));
     }
   }, [activeProfile, formData.child_profile_id]);
@@ -291,6 +293,36 @@ export function StoryGenerator() {
               </button>
             ))}
           </div>
+        </div>
+
+        {/* Illustration Style */}
+        <div>
+          <label className="block text-sm font-medium text-gray-700 mb-2">
+            Illustration Style
+          </label>
+          <select
+            value={formData.illustration_style || ''}
+            onChange={(e) => setFormData({ ...formData, illustration_style: e.target.value || undefined })}
+            className={`w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 ${
+              formData.illustration_style 
+                ? 'border-indigo-300 bg-indigo-50 text-indigo-900' 
+                : 'border-gray-300 text-gray-700'
+            }`}
+          >
+            <option value="" className="text-gray-600">
+              Select illustration style
+            </option>
+            {Object.entries(ILLUSTRATION_STYLES).map(([key, style]) => (
+              <option key={key} value={key} className="text-gray-900">
+                {style.label} - {style.description}
+              </option>
+            ))}
+          </select>
+          {formData.illustration_style && (
+            <p className="text-xs text-gray-500 mt-1">
+              {ILLUSTRATION_STYLES[formData.illustration_style as keyof typeof ILLUSTRATION_STYLES]?.description}
+            </p>
+          )}
         </div>
 
         {/* Custom Prompt */}
