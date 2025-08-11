@@ -7,14 +7,22 @@ import dotenv from 'dotenv';
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
-// Load environment variables from .env.local
-dotenv.config({ path: '.env.local' });
+// Load environment variables from .env.railway or .env.local
+if (fs.existsSync('.env.railway')) {
+  dotenv.config({ path: '.env.railway' });
+  console.log('Loading environment from .env.railway');
+} else if (fs.existsSync('.env.local')) {
+  dotenv.config({ path: '.env.local' });
+  console.log('Loading environment from .env.local');
+} else {
+  console.log('Using system environment variables');
+}
 
 const { Pool } = pg;
 
 // Load environment variables
 if (!process.env.DATABASE_URL) {
-  console.error('DATABASE_URL not found. Make sure your .env.local file is set up correctly.');
+  console.error('DATABASE_URL not found. Make sure your .env.railway or .env.local file is set up correctly.');
   process.exit(1);
 }
 

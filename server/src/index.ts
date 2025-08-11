@@ -130,14 +130,17 @@ app.use('/api/illustrations', illustrationRoutes);
 import storyIllustrationRoutes from './routes/story-illustrations.js';
 app.use('/api/story-illustrations', storyIllustrationRoutes);
 
-// Serve built client files in development
-if (process.env.NODE_ENV === 'development') {
-  const clientDistDir = path.join(__dirname, '../../client/dist');
+// Serve built client files
+const clientDistDir = path.join(__dirname, '../../client/dist');
+
+// Check if client dist directory exists
+if (require('fs').existsSync(clientDistDir)) {
+  console.log('Serving client files from:', clientDistDir);
   app.use(express.static(clientDistDir));
   
-  // Serve index.html for client-side routing
+  // Serve index.html for client-side routing (but not for API routes)
   app.get('*', (req, res) => {
-    if (!req.path.startsWith('/api')) {
+    if (!req.path.startsWith('/api') && !req.path.startsWith('/uploads')) {
       res.sendFile(path.join(clientDistDir, 'index.html'));
     } else {
       res.status(404).json({
@@ -147,12 +150,20 @@ if (process.env.NODE_ENV === 'development') {
     }
   });
 } else {
-  // 404 handler for production
+  console.log('Client dist directory not found, API-only mode');
+  // 404 handler for API-only mode
   app.use('*', (req, res) => {
-    res.status(404).json({
-      success: false,
-      error: { message: 'Route not found' }
-    });
+    if (req.path.startsWith('/api')) {
+      res.status(404).json({
+        success: false,
+        error: { message: 'API route not found' }
+      });
+    } else {
+      res.status(404).json({
+        success: false,
+        error: { message: 'Frontend not deployed - please access API endpoints directly' }
+      });
+    }
   });
 }
 
