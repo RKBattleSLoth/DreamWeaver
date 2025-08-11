@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { useQueryClient } from '@tanstack/react-query';
 import { IllustrationVariationGrid } from './illustration/IllustrationVariationGrid';
 import { IllustrationSessionControls } from './illustration/IllustrationSessionControls';
 import { Button } from './ui/button';
@@ -26,6 +27,7 @@ interface GenerationSession {
 }
 
 export function IllustrationGenerator({ story, childProfile, onClose }: IllustrationGeneratorProps) {
+  const queryClient = useQueryClient();
   const [scenePrompt, setScenePrompt] = useState('');
   const [sceneType, setSceneType] = useState<SceneType>('scene');
   const [artStyle, setArtStyle] = useState<string>(childProfile.preferred_art_style || 'storybook');
@@ -152,6 +154,10 @@ export function IllustrationGenerator({ story, childProfile, onClose }: Illustra
           ...session,
           status: 'completed'
         });
+        
+        // Invalidate the gallery query to refresh it
+        queryClient.invalidateQueries({ queryKey: ['illustrations'] });
+        
         alert('Illustration made canonical! You can now link it to your story.');
         // Reset the form after a short delay to show the success message
         setTimeout(resetForm, 2000);
