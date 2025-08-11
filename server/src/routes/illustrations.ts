@@ -143,11 +143,19 @@ router.get('/gallery', async (req: Request, res: Response) => {
       ? illustrations
       : illustrations.filter(ill => ill.is_canonical === true);
 
+    // Transform illustrations to include proper image URLs
+    const illustrationsWithUrls = filteredIllustrations.map(ill => ({
+      ...ill,
+      image_url: ill.image_path ? `/api/illustrations/image/${ill.image_path}` : null,
+      // Keep the original for backwards compatibility
+      public_url: ill.image_path ? `/api/illustrations/image/${ill.image_path}` : null
+    }));
+
     res.json({
       success: true,
       data: {
-        illustrations: filteredIllustrations,
-        total: filteredIllustrations.length
+        illustrations: illustrationsWithUrls,
+        total: illustrationsWithUrls.length
       }
     });
   } catch (error: any) {
@@ -209,11 +217,18 @@ router.post('/sessions',
         illustrationStyle: req.body.illustration_style
       });
 
+      // Transform variations to include proper image URLs
+      const variationsWithUrls = result.variations.map(ill => ({
+        ...ill,
+        image_url: ill.image_path ? `/api/illustrations/image/${ill.image_path}` : null,
+        public_url: ill.image_path ? `/api/illustrations/image/${ill.image_path}` : null
+      }));
+
       res.status(201).json({
         success: true,
         data: {
           session_id: result.sessionId,
-          variations: result.variations,
+          variations: variationsWithUrls,
           child_profile: childProfile,
           story: story,
           round: 1
@@ -248,10 +263,17 @@ router.post('/generate-variations',
         favoriteIllustrationId: req.body.favorite_illustration_id
       });
 
+      // Transform variations to include proper image URLs
+      const variationsWithUrls = variations.map(ill => ({
+        ...ill,
+        image_url: ill.image_path ? `/api/illustrations/image/${ill.image_path}` : null,
+        public_url: ill.image_path ? `/api/illustrations/image/${ill.image_path}` : null
+      }));
+
       res.json({
         success: true,
         data: {
-          variations,
+          variations: variationsWithUrls,
           round: req.body.round
         }
       });
@@ -284,9 +306,24 @@ router.post('/select-favorite',
         req.body.current_round
       );
 
+      // Transform the result to include proper image URLs
+      const transformedResult = {
+        ...result,
+        selectedFavorite: result.selectedFavorite ? {
+          ...result.selectedFavorite,
+          image_url: result.selectedFavorite.image_path ? `/api/illustrations/image/${result.selectedFavorite.image_path}` : null,
+          public_url: result.selectedFavorite.image_path ? `/api/illustrations/image/${result.selectedFavorite.image_path}` : null
+        } : undefined,
+        variations: result.variations?.map(ill => ({
+          ...ill,
+          image_url: ill.image_path ? `/api/illustrations/image/${ill.image_path}` : null,
+          public_url: ill.image_path ? `/api/illustrations/image/${ill.image_path}` : null
+        }))
+      };
+
       res.json({
         success: true,
-        data: result
+        data: transformedResult
       });
 
     } catch (error: any) {
