@@ -6,11 +6,18 @@ import fs from 'fs';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
-// Load .env.local in development
+// Load .env.local or .env.railway in development
 if (process.env.NODE_ENV !== 'production') {
   const envLocalPath = path.resolve(__dirname, '../.env.local');
+  const envRailwayPath = path.resolve(__dirname, '../.env.railway');
+  
   if (fs.existsSync(envLocalPath)) {
     dotenvConfig({ path: envLocalPath });
+  } else if (fs.existsSync(envRailwayPath)) {
+    console.log('Loading .env.railway file');
+    dotenvConfig({ path: envRailwayPath });
+  } else {
+    console.log('No .env.local or .env.railway found - using system environment variables');
   }
 }
 

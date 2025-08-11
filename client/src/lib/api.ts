@@ -3,7 +3,7 @@ import type { ApiResponse } from '../shared/types'
 
 // Create axios instance
 export const api = axios.create({
-  baseURL: import.meta.env.DEV ? 'http://localhost:3001' : '',
+  baseURL: import.meta.env.VITE_API_URL || (import.meta.env.DEV ? 'http://localhost:3001' : ''),
   timeout: 30000,
   headers: {
     'Content-Type': 'application/json'
