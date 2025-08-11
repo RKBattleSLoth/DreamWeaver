@@ -5,6 +5,7 @@ import cors from 'cors';
 import helmet from 'helmet';
 import authRoutes from './routes/auth.js';
 import path from 'path';
+import fs from 'fs';
 import { fileURLToPath } from 'url';
 import { checkDatabaseConnection } from './services/db.js';
 
@@ -134,7 +135,7 @@ app.use('/api/story-illustrations', storyIllustrationRoutes);
 const clientDistDir = path.join(__dirname, '../../client/dist');
 
 // Check if client dist directory exists
-if (require('fs').existsSync(clientDistDir)) {
+if (fs.existsSync(clientDistDir)) {
   console.log('Serving client files from:', clientDistDir);
   app.use(express.static(clientDistDir));
   
