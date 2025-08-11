@@ -175,31 +175,39 @@ export async function generateAndSaveStory(
       targetWordCount
     });
 
-    // Generate the story content using AI
-    let prompt = params.custom_prompt;
-    
-    if (!prompt && childProfile) {
-      // Create personalized prompt
-      const isAboutChild = params.story_about === 'child';
-      const mainCharacterName = isAboutChild ? childProfile.name : (params.custom_character_name || 'the main character');
+    // Generate the story content using AI with proper child profile support
+    let title: string;
+    let content: string;
+
+    if (childProfile) {
+      // Use the full OpenRouter function with child profile support
+      const storyResult = await generateStoryWithOpenRouter({
+        childProfile,
+        theme: params.theme,
+        customPrompt: params.custom_prompt,
+        storyLength: params.story_length || 'medium',
+        customWordCount: params.custom_word_count,
+        readingLevel: params.reading_level,
+        storyAbout: params.story_about || 'child',
+        customCharacterName: params.custom_character_name
+      });
       
-      if (isAboutChild) {
-        prompt = `Write a ${params.reading_level || 'beginner'} level bedtime story for ${childProfile.name}. The story should be about ${childProfile.name} and focus on the theme of ${params.theme || 'adventure'}. The story should be appropriate for a ${childProfile.age} year old child.`;
-      } else {
-        prompt = `Write a ${params.reading_level || 'beginner'} level bedtime story for ${childProfile.name}. The story should be about a character named ${mainCharacterName} and focus on the theme of ${params.theme || 'adventure'}. The story should be appropriate for a ${childProfile.age} year old child.`;
-      }
-    } else if (!prompt) {
-      // Fallback for no child profile
-      prompt = `Create a ${params.reading_level || 'beginner'} level story about ${params.theme || 'adventure'}`;
+      title = storyResult.title;
+      content = storyResult.content;
+    } else {
+      // Fallback to simple generation if no child profile
+      const prompt = params.custom_prompt || 
+        `Create a ${params.reading_level || 'beginner'} level story about ${params.theme || 'adventure'}`;
+      
+      const storyResult = await generateStorySimple(prompt, {
+        reading_level: params.reading_level || 'beginner',
+        word_count: targetWordCount,
+        theme: params.theme
+      });
+      
+      title = storyResult.title;
+      content = storyResult.content;
     }
-    
-    console.log('Generated prompt:', prompt);
-    
-    const { title, content } = await generateStorySimple(prompt, {
-      reading_level: params.reading_level || childProfile?.reading_level || 'beginner',
-      word_count: targetWordCount,
-      theme: params.theme
-    });
 
     const wordCount = content.split(/\s+/).length;
 
@@ -210,7 +218,9 @@ export async function generateAndSaveStory(
       theme: params.theme,
       reading_level: params.reading_level || childProfile?.reading_level,
       word_count: wordCount,
-      generation_prompt: prompt,
+      generation_prompt: childProfile 
+        ? `Story about ${params.story_about === 'child' ? childProfile.name : (params.custom_character_name || 'another character')} - Theme: ${params.theme}`
+        : params.custom_prompt || `Story about ${params.theme || 'adventure'}`,
       is_favorite: false
     };
 

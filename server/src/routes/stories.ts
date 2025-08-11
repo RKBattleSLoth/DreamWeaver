@@ -127,7 +127,13 @@ router.post('/',
   validateBody(storySchemas.create),
   async (req: Request<{}, ApiResponse, CreateStoryRequest>, res: Response) => {
     try {
-      const story = await createStory(req.user!.id, req.body, req.authToken!);
+      // Transform CreateStoryRequest to include required fields
+      const storyData = {
+        ...req.body,
+        is_favorite: false // Default to false
+      };
+      
+      const story = await createStory(req.user!.id, storyData, req.authToken!);
       
       res.status(201).json({
         success: true,

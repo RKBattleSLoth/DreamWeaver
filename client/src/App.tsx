@@ -4,6 +4,7 @@ import RegisterPage from './pages/RegisterPage'
 import DashboardPage from './pages/DashboardPage'
 import ChildProfilesPage from './pages/ChildProfilesPage'
 import { Stories } from './pages/Stories'
+import { Gallery } from './pages/Gallery'
 import { JWTAuthProvider } from './lib/jwt-auth'
 import Navigation from './components/ui/Navigation'
 import { ThemeProvider } from './lib/theme'
@@ -20,6 +21,7 @@ function App() {
             <Route path="/register" component={RegisterPage} />
             <Route path="/profiles" component={ChildProfilesPage} />
             <Route path="/stories" component={Stories} />
+            <Route path="/gallery" component={Gallery} />
             <Route path="/" component={DashboardPage} />
             
             {/* 404 */}

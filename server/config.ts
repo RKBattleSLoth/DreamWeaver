@@ -1,15 +1,23 @@
-import 'dotenv/config';
+import { config as dotenvConfig } from 'dotenv';
 import { z } from "zod";
+import path from 'path';
+import { fileURLToPath } from 'url';
+import fs from 'fs';
+
+const __dirname = path.dirname(fileURLToPath(import.meta.url));
+
+// Load .env.local in development
+if (process.env.NODE_ENV !== 'production') {
+  const envLocalPath = path.resolve(__dirname, '../.env.local');
+  if (fs.existsSync(envLocalPath)) {
+    dotenvConfig({ path: envLocalPath });
+  }
+}
 
 const envSchema = z.object({
   NODE_ENV: z.enum(["development", "production", "test"]).default("development"),
   PORT: z.string().transform(Number).default("3001"),
-  DATABASE_URL: z.string().optional(),
-  
-  // Supabase Configuration
-  SUPABASE_URL: z.string().url(),
-  SUPABASE_ANON_KEY: z.string().min(1),
-  SUPABASE_SERVICE_ROLE_KEY: z.string().min(1),
+  DATABASE_URL: z.string().min(1, "PostgreSQL DATABASE_URL is required"),
   
   // API Keys
   OPENROUTER_API_KEY: z.string().min(1, "OpenRouter API key is required"),
@@ -47,6 +55,13 @@ const envSchema = z.object({
   SENTRY_DSN: z.string().optional(),
   LOG_LEVEL: z.enum(["error", "warn", "info", "http", "verbose", "debug", "silly"]).default("info"),
   ENABLE_METRICS: z.string().transform(val => val === "true").default("false"),
+  
+  // Storage Configuration (for local development)
+  STORAGE_TYPE: z.enum(["local", "cloud"]).default("local"),
+  LOCAL_STORAGE_PATH: z.string().default("./storage"),
+  
+  // DALL-E 3 Configuration
+  OPENROUTER_DALLE3_MODEL: z.string().default("openai/dall-e-3"),
 });
 
 let config: z.infer<typeof envSchema>;

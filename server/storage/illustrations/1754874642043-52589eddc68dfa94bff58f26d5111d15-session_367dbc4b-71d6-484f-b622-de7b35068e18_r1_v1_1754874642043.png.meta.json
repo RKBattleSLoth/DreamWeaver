@@ -1,0 +1,14 @@
+{
+  "sessionId": "367dbc4b-71d6-484f-b622-de7b35068e18",
+  "batchId": "fc9ff033-9bd9-497e-a2d8-08734c5fcec1",
+  "round": 1,
+  "variation": 1,
+  "originalUrl": "https://replicate.delivery/xezq/tGVCV1iuX8ZSIJ61mRvcNCflfm0qvSe9kUwsi3iw5un2nemUB/out-0.png",
+  "prompt": "Create a children's book illustration for Isa, age 18.\n\nScene: A brave knight rescuing a dragon from a lonely castle\nType: scene\n\nChild's interests: archery\nReading level: intermediate\n\nRequirements:\n- Age-appropriate for 18 year old\n- Safe and positive imagery\n- Engaging and imaginative\n- Rich in storytelling details\n- Professional children's book illustration quality\n- Should spark wonder and curiosity\n\nStyle: cartoon\nPerspective: wide_shot  \nMood: establishing\nCheerful cartoon illustration with bold outlines, vibrant colors, and expressive characters. Wide establishing shot showing the full scene and environment\n\nHigh quality children's book illustration, safe for all ages, whimsical and engaging, digital art, colorful, detailed",
+  "revisedPrompt": "Create a children's book illustration for Isa, age 18.\n\nScene: A brave knight rescuing a dragon from a lonely castle\nType: scene\n\nChild's interests: archery\nReading level: intermediate\n\nRequirements:\n- Age-appropriate for 18 year old\n- Safe and positive imagery\n- Engaging and imaginative\n- Rich in storytelling details\n- Professional children's book illustration quality\n- Should spark wonder and curiosity\n\nStyle: cartoon\nPerspective: wide_shot  \nMood: establishing\nCheerful cartoon illustration with bold outlines, vibrant colors, and expressive characters. Wide establishing shot showing the full scene and environment\n\nHigh quality children's book illustration, safe for all ages, whimsical and engaging, digital art, colorful, detailed",
+  "style": "cartoon",
+  "perspective": "wide_shot",
+  "mimeType": "image/png",
+  "originalName": "session_367dbc4b-71d6-484f-b622-de7b35068e18_r1_v1_1754874642043.png",
+  "createdAt": "2025-08-11T01:10:42.046Z"
+}

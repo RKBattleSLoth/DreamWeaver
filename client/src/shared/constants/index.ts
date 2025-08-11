@@ -16,6 +16,55 @@ export const ART_STYLES = [
   'storybook'
 ] as const;
 
+// Illustration styles for story generation with user-friendly labels
+export const ILLUSTRATION_STYLES = {
+  watercolor: {
+    label: 'Watercolor',
+    description: 'Soft, dreamy paintings with flowing colors',
+    modifier: 'Soft watercolor painting with gentle brushstrokes, dreamy and flowing colors, peaceful atmosphere'
+  },
+  cartoon: {
+    label: 'Cartoon',
+    description: 'Bright and cheerful with bold outlines',
+    modifier: 'Cheerful cartoon illustration with bold outlines, vibrant colors, and expressive characters'
+  },
+  sketch: {
+    label: 'Pencil Sketch',
+    description: 'Detailed pencil drawings with artistic shading',
+    modifier: 'Detailed pencil sketch with careful shading, artistic linework, and dynamic composition'
+  },
+  digital_art: {
+    label: 'Digital Art',
+    description: 'Clean modern illustrations with rich colors',
+    modifier: 'Clean digital illustration with modern styling, rich colors, and magical details'
+  },
+  oil_painting: {
+    label: 'Oil Painting',
+    description: 'Classical painted style with rich textures',
+    modifier: 'Beautiful oil painting with rich textures, classical artistic style, and warm lighting'
+  },
+  storybook: {
+    label: 'Storybook',
+    description: 'Traditional children\'s book illustration style',
+    modifier: 'Classic storybook illustration with warm colors, detailed backgrounds, and enchanting atmosphere'
+  },
+  disney: {
+    label: 'Disney Style',
+    description: 'Animated movie style with expressive characters',
+    modifier: 'Disney-style animation with expressive characters, vibrant colors, and magical storytelling'
+  },
+  realistic: {
+    label: 'Realistic',
+    description: 'Lifelike illustrations with natural details',
+    modifier: 'Realistic illustration with natural lighting, detailed textures, and lifelike proportions'
+  },
+  anime: {
+    label: 'Anime',
+    description: 'Japanese animation style with large eyes',
+    modifier: 'Anime-style illustration with expressive eyes, dynamic poses, and colorful details'
+  }
+} as const;
+
 export const STORY_LENGTHS = {
   short: { words: 300, description: 'Short (300 words)' },
   medium: { words: 500, description: 'Medium (500 words)' },

@@ -1,0 +1,14 @@
+{
+  "sessionId": "367dbc4b-71d6-484f-b622-de7b35068e18",
+  "batchId": "fc9ff033-9bd9-497e-a2d8-08734c5fcec1",
+  "round": 1,
+  "variation": 3,
+  "originalUrl": "https://replicate.delivery/xezq/0AX25fUQJsRvCSLGdCq46QyaeYmFQd2i1e0hDZvOuhe1Q9mUB/out-0.png",
+  "prompt": "Create a children's book illustration for Isa, age 18.\n\nScene: A brave knight rescuing a dragon from a lonely castle\nType: scene\n\nChild's interests: archery\nReading level: intermediate\n\nRequirements:\n- Age-appropriate for 18 year old\n- Safe and positive imagery\n- Engaging and imaginative\n- Rich in storytelling details\n- Professional children's book illustration quality\n- Should spark wonder and curiosity\n\nStyle: cartoon\nPerspective: close_up  \nMood: intimate\nCheerful cartoon illustration with bold outlines, vibrant colors, and expressive characters. Close-up view highlighting emotions and important details\n\nHigh quality children's book illustration, safe for all ages, whimsical and engaging, digital art, colorful, detailed",
+  "revisedPrompt": "Create a children's book illustration for Isa, age 18.\n\nScene: A brave knight rescuing a dragon from a lonely castle\nType: scene\n\nChild's interests: archery\nReading level: intermediate\n\nRequirements:\n- Age-appropriate for 18 year old\n- Safe and positive imagery\n- Engaging and imaginative\n- Rich in storytelling details\n- Professional children's book illustration quality\n- Should spark wonder and curiosity\n\nStyle: cartoon\nPerspective: close_up  \nMood: intimate\nCheerful cartoon illustration with bold outlines, vibrant colors, and expressive characters. Close-up view highlighting emotions and important details\n\nHigh quality children's book illustration, safe for all ages, whimsical and engaging, digital art, colorful, detailed",
+  "style": "cartoon",
+  "perspective": "close_up",
+  "mimeType": "image/png",
+  "originalName": "session_367dbc4b-71d6-484f-b622-de7b35068e18_r1_v3_1754874642853.png",
+  "createdAt": "2025-08-11T01:10:42.855Z"
+}

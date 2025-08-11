@@ -1,0 +1,14 @@
+{
+  "sessionId": "63d639dc-aaed-445b-9f5b-6cb7f02c65f3",
+  "batchId": "1a3e38f9-6737-4bca-925b-bacef1ea65c3",
+  "round": 1,
+  "variation": 1,
+  "originalUrl": "https://replicate.delivery/xezq/fNMGXwLNe1pHeJyQcLTqp1OnWcOP9c856dzxtWyDCaWpLfmUB/out-0.png",
+  "prompt": "Create a children's book illustration for Isa, age 18.\n\nScene: The target from Isa's archery competition with her arrow stuck into the ground beside it\nType: object\n\nChild's interests: archery\nReading level: intermediate\n\nRequirements:\n- Age-appropriate for 18 year old\n- Safe and positive imagery\n- Engaging and imaginative\n- Rich in storytelling details\n- Professional children's book illustration quality\n- Should spark wonder and curiosity\n\nStyle: oil_painting\nPerspective: wide_shot  \nMood: establishing\nBeautiful oil painting with rich textures, classical artistic style, and warm lighting. Wide establishing shot showing the full scene and environment\n\nHigh quality children's book illustration, safe for all ages, whimsical and engaging, digital art, colorful, detailed",
+  "revisedPrompt": "Create a children's book illustration for Isa, age 18.\n\nScene: The target from Isa's archery competition with her arrow stuck into the ground beside it\nType: object\n\nChild's interests: archery\nReading level: intermediate\n\nRequirements:\n- Age-appropriate for 18 year old\n- Safe and positive imagery\n- Engaging and imaginative\n- Rich in storytelling details\n- Professional children's book illustration quality\n- Should spark wonder and curiosity\n\nStyle: oil_painting\nPerspective: wide_shot  \nMood: establishing\nBeautiful oil painting with rich textures, classical artistic style, and warm lighting. Wide establishing shot showing the full scene and environment\n\nHigh quality children's book illustration, safe for all ages, whimsical and engaging, digital art, colorful, detailed",
+  "style": "oil_painting",
+  "perspective": "wide_shot",
+  "mimeType": "image/png",
+  "originalName": "session_63d639dc-aaed-445b-9f5b-6cb7f02c65f3_r1_v1_1754875764936.png",
+  "createdAt": "2025-08-11T01:29:24.938Z"
+}

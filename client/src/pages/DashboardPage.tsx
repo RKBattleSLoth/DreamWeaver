@@ -118,13 +118,15 @@ export default function DashboardPage() {
             <CardHeader>
               <CardTitle>Illustration Gallery</CardTitle>
               <CardDescription>
-                Create and manage beautiful illustrations
+                Browse and manage your generated illustrations
               </CardDescription>
             </CardHeader>
             <CardContent>
-              <Button className="w-full" disabled>
-                Coming Soon
-              </Button>
+              <Link href="/gallery">
+                <Button className="w-full">
+                  View Gallery
+                </Button>
+              </Link>
             </CardContent>
           </Card>
         </div>

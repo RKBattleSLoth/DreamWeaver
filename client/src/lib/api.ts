@@ -3,7 +3,7 @@ import type { ApiResponse } from '../shared/types'
 
 // Create axios instance
 export const api = axios.create({
-  baseURL: import.meta.env.DEV ? 'http://localhost:3000' : '',
+  baseURL: import.meta.env.DEV ? 'http://localhost:3001' : '',
   timeout: 30000,
   headers: {
     'Content-Type': 'application/json'
@@ -87,5 +87,41 @@ export async function apiCall<T>(
       success: false,
       error: { message: 'Network error' }
     }
+  }
+}
+
+// Stories API
+export const storiesApi = {
+  async getForChild(childProfileId: string) {
+    const response = await apiCall<{ stories: any[] }>('get', `/api/stories?child_profile_id=${childProfileId}`)
+    return response.success ? response.data.stories : []
+  },
+
+  async getFavorites(childProfileId: string) {
+    const response = await apiCall<{ stories: any[] }>('get', `/api/stories?child_profile_id=${childProfileId}&favorites=true`)
+    return response.success ? response.data.stories.filter(s => s.is_favorite) : []
+  },
+
+  async getById(id: string) {
+    const response = await apiCall<{ story: any }>('get', `/api/stories/${id}`)
+    return response.success ? response.data.story : null
+  },
+
+  async toggleFavorite(storyId: string) {
+    const response = await apiCall<{ story: any }>('put', `/api/stories/${storyId}/favorite`)
+    return response.success ? response.data.story : null
+  },
+
+  async markAsRead(storyId: string) {
+    const response = await apiCall<{ story: any }>('put', `/api/stories/${storyId}/read`)
+    return response.success ? response.data.story : null
+  }
+}
+
+// Story Generation API (placeholder)
+export const storyGenerationApi = {
+  async generate(request: any) {
+    const response = await apiCall<{ story: any }>('post', '/api/stories/generate', request)
+    return response.success ? response.data.story : null
   }
 }
