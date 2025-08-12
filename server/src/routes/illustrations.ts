@@ -125,6 +125,12 @@ router.get('/debug/storage', async (req: Request, res: Response) => {
   }
 });
 
+// Test route to verify POST works
+router.post('/test', (req, res) => {
+  console.log('POST /test hit');
+  res.json({ success: true, message: 'POST test successful' });
+});
+
 // All other routes require authentication
 router.use(authenticateToken);
 
@@ -219,10 +225,20 @@ router.get('/gallery', async (req: Request, res: Response) => {
 
 // Start new illustration session from story
 router.post('/sessions', 
+  (req, res, next) => {
+    console.log('POST /sessions middleware hit:', { 
+      method: req.method, 
+      path: req.path,
+      baseUrl: req.baseUrl,
+      originalUrl: req.originalUrl,
+      headers: req.headers
+    });
+    next();
+  },
   validateBody(startSessionSchema),
   async (req: Request<{}, ApiResponse, z.infer<typeof startSessionSchema>>, res: Response) => {
     try {
-      console.log('Starting illustration session:', {
+      console.log('Starting illustration session handler:', {
         userId: req.user!.id,
         body: req.body
       });
