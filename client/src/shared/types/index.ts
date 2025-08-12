@@ -49,6 +49,8 @@ export interface Illustration {
   title?: string;
   description?: string;
   image_path: string; // Single source of truth for file location
+  image_url?: string; // Constructed URL from backend
+  public_url?: string; // Alias for image_url
   
   // Generation metadata
   art_style: string; // 'watercolor', 'cartoon', 'sketch', 'digital'

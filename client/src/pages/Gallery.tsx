@@ -40,6 +40,11 @@ export function Gallery() {
       }
 
       const result = await response.json();
+      console.log('Gallery API response:', {
+        success: result.success,
+        count: result.data?.illustrations?.length,
+        firstIllustration: result.data?.illustrations?.[0]
+      });
       return result.data?.illustrations || [];
     }
   });

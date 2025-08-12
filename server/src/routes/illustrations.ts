@@ -17,9 +17,11 @@ router.get('/image/:filename', async (req: Request<{ filename: string }>, res: R
     const { fileStorage, StorageBuckets } = await import('../services/file-storage.js');
     
     const filename = req.params.filename;
+    console.log('Image request:', { filename, method: req.method });
     
     // Validate filename to prevent directory traversal
-    if (filename.includes('../') || filename.includes('..\\')) {
+    if (!filename || filename.includes('../') || filename.includes('..\\')) {
+      console.error('Invalid filename:', filename);
       return res.status(400).json({
         success: false,
         error: { message: 'Invalid filename' }
@@ -31,11 +33,18 @@ router.get('/image/:filename', async (req: Request<{ filename: string }>, res: R
       const imageBuffer = await fileStorage.download(StorageBuckets.ILLUSTRATIONS, filename);
       
       if (!imageBuffer) {
+        console.error('Image buffer is null for:', filename);
         return res.status(404).json({
           success: false,
           error: { message: 'Image not found' }
         });
       }
+      
+      console.log('Successfully loaded image:', { 
+        filename, 
+        size: imageBuffer.length,
+        type: imageBuffer.constructor.name 
+      });
       
       // Set appropriate content type based on file extension
       const ext = filename.split('.').pop()?.toLowerCase();
@@ -75,13 +84,37 @@ router.get('/debug/storage', async (req: Request, res: Response) => {
     const { fileStorage, StorageBuckets } = await import('../services/file-storage.js');
     const files = await fileStorage.list(StorageBuckets.ILLUSTRATIONS);
     
+    // Test if we can actually read the first file
+    let testFileResult = null;
+    if (files.length > 0) {
+      try {
+        const testBuffer = await fileStorage.download(StorageBuckets.ILLUSTRATIONS, files[0].name);
+        testFileResult = {
+          name: files[0].name,
+          size: testBuffer?.length || 0,
+          readable: !!testBuffer
+        };
+      } catch (e: any) {
+        testFileResult = {
+          name: files[0].name,
+          error: e.message
+        };
+      }
+    }
+    
     res.json({
       success: true,
       data: {
         storageType: process.env.STORAGE_TYPE || 'local',
         storagePath: process.env.LOCAL_STORAGE_PATH || './storage',
         filesCount: files.length,
-        files: files.slice(0, 5).map(f => f.name) // First 5 files
+        files: files.slice(0, 5).map(f => ({ 
+          name: f.name,
+          size: f.size,
+          createdAt: f.createdAt
+        })),
+        testFileResult,
+        workingDirectory: process.cwd()
       }
     });
   } catch (error: any) {
@@ -125,7 +158,21 @@ const uuidSchema = z.object({
 // Get user's illustration gallery
 router.get('/gallery', async (req: Request, res: Response) => {
   try {
+    console.log('Gallery request:', { 
+      userId: req.user!.id, 
+      query: req.query,
+      headers: req.headers.authorization ? 'Bearer token present' : 'No auth'
+    });
+    
     const illustrations = await getIllustrationsByUserId(req.user!.id);
+    console.log('Found illustrations:', { 
+      count: illustrations.length,
+      firstThree: illustrations.slice(0, 3).map(ill => ({
+        id: ill.id,
+        image_path: ill.image_path,
+        is_canonical: ill.is_canonical
+      }))
+    });
     
     // By default, show canonical illustrations in gallery
     // Use ?include_all=true to show all illustrations
@@ -139,12 +186,20 @@ router.get('/gallery', async (req: Request, res: Response) => {
         : illustrations; // Show all if no canonical ones exist
 
     // Transform illustrations to include proper image URLs
-    const illustrationsWithUrls = filteredIllustrations.map(ill => ({
-      ...ill,
-      image_url: ill.image_path ? `/api/illustrations/image/${ill.image_path}` : null,
-      // Keep the original for backwards compatibility
-      public_url: ill.image_path ? `/api/illustrations/image/${ill.image_path}` : null
-    }));
+    const illustrationsWithUrls = filteredIllustrations.map(ill => {
+      const imageUrl = ill.image_path ? `/api/illustrations/image/${ill.image_path}` : null;
+      console.log('URL mapping:', { 
+        id: ill.id, 
+        image_path: ill.image_path, 
+        constructed_url: imageUrl 
+      });
+      return {
+        ...ill,
+        image_url: imageUrl,
+        // Keep the original for backwards compatibility
+        public_url: imageUrl
+      };
+    });
 
     res.json({
       success: true,

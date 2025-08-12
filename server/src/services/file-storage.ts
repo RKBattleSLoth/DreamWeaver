@@ -22,7 +22,17 @@ export class FileStorageService {
 
   constructor() {
     this.useLocal = config.STORAGE_TYPE === 'local';
-    this.basePath = path.resolve(config.LOCAL_STORAGE_PATH);
+    // Ensure storage path is relative to the server directory
+    const storagePath = config.LOCAL_STORAGE_PATH || './storage';
+    this.basePath = path.isAbsolute(storagePath) 
+      ? storagePath 
+      : path.resolve(process.cwd(), storagePath);
+    
+    console.log('FileStorage initialized:', {
+      useLocal: this.useLocal,
+      basePath: this.basePath,
+      cwd: process.cwd()
+    });
     
     if (this.useLocal) {
       this.initializeLocalStorage();
@@ -94,7 +104,14 @@ export class FileStorageService {
   async download(bucket: string, fileName: string): Promise<Buffer> {
     if (this.useLocal) {
       const filePath = path.join(this.basePath, bucket, fileName);
-      return await fs.readFile(filePath);
+      try {
+        const buffer = await fs.readFile(filePath);
+        console.log(`Successfully read file: ${filePath}, size: ${buffer.length}`);
+        return buffer;
+      } catch (error: any) {
+        console.error(`Failed to read file: ${filePath}`, error.message);
+        throw error;
+      }
     } else {
       // TODO: Implement cloud storage download
       throw new Error('Cloud storage not yet implemented');

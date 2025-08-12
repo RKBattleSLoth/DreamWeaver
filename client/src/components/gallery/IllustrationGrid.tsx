@@ -10,7 +10,16 @@ interface IllustrationGridProps {
 
 export function IllustrationGrid({ illustrations, onIllustrationClick }: IllustrationGridProps) {
   const getImageUrl = (illustration: Illustration): string => {
-    return `/api/illustrations/image/${illustration.image_path}`;
+    // Check if we already have a constructed URL from the backend
+    if (illustration.image_url) {
+      return illustration.image_url;
+    }
+    // Fallback to constructing URL from image_path
+    if (illustration.image_path) {
+      return `/api/illustrations/image/${illustration.image_path}`;
+    }
+    // Return placeholder if no image
+    return '/api/placeholder/400/400';
   };
 
   return (
@@ -28,6 +37,11 @@ export function IllustrationGrid({ illustrations, onIllustrationClick }: Illustr
               alt={illustration.title || 'Generated illustration'}
               className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-200"
               onError={(e) => {
+                console.error('Image failed to load:', {
+                  src: (e.target as HTMLImageElement).src,
+                  illustration_id: illustration.id,
+                  image_path: illustration.image_path
+                });
                 // Fallback for broken images
                 (e.target as HTMLImageElement).src = '/api/placeholder/400/400';
               }}
