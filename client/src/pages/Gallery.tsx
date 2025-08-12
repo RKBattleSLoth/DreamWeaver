@@ -19,9 +19,10 @@ export function Gallery() {
     queryKey: ['illustrations', filterCanonical],
     queryFn: async () => {
       const params = new URLSearchParams();
-      if (filterCanonical === 'canonical') {
-        params.append('canonical', 'true');
+      if (filterCanonical === 'all') {
+        params.append('include_all', 'true');
       }
+      // For canonical and variations, we'll filter client-side since backend defaults to canonical
       
       const response = await fetch(`/api/illustrations/gallery?${params}`, {
         headers: {

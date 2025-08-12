@@ -127,12 +127,16 @@ router.get('/gallery', async (req: Request, res: Response) => {
   try {
     const illustrations = await getIllustrationsByUserId(req.user!.id);
     
-    // By default, only show canonical illustrations in gallery
+    // By default, show canonical illustrations in gallery
     // Use ?include_all=true to show all illustrations
+    // If no canonical illustrations exist, show all to avoid empty gallery
     const includeAll = req.query.include_all === 'true';
+    const canonicalIllustrations = illustrations.filter(ill => ill.is_canonical === true);
     const filteredIllustrations = includeAll 
       ? illustrations
-      : illustrations.filter(ill => ill.is_canonical === true);
+      : canonicalIllustrations.length > 0 
+        ? canonicalIllustrations 
+        : illustrations; // Show all if no canonical ones exist
 
     // Transform illustrations to include proper image URLs
     const illustrationsWithUrls = filteredIllustrations.map(ill => ({
