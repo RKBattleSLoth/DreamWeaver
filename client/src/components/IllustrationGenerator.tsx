@@ -7,7 +7,7 @@ import { Card, CardContent, CardHeader, CardTitle } from './ui/card';
 import { Textarea } from './ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from './ui/select-radix';
 import LoadingSpinner from './loading-spinner';
-import { getAuthHeaders } from '../lib/jwt-auth';
+import { getAuthHeaders, useAuth } from '../lib/jwt-auth';
 import { ILLUSTRATION_STYLES } from '../shared/constants';
 import type { Story, ChildProfile, Illustration } from '../shared/types';
 
@@ -27,6 +27,7 @@ interface GenerationSession {
 }
 
 export function IllustrationGenerator({ story, childProfile, onClose }: IllustrationGeneratorProps) {
+  const { logout } = useAuth();
   const queryClient = useQueryClient();
   const [scenePrompt, setScenePrompt] = useState('');
   const [sceneType, setSceneType] = useState<SceneType>('scene');
@@ -57,6 +58,10 @@ export function IllustrationGenerator({ story, childProfile, onClose }: Illustra
       });
 
       if (!response.ok) {
+        if (response.status === 401) {
+          logout();
+          throw new Error('Your session has expired. Please log in again.');
+        }
         throw new Error('Failed to reroll illustrations');
       }
 
@@ -104,6 +109,10 @@ export function IllustrationGenerator({ story, childProfile, onClose }: Illustra
       });
 
       if (!response.ok) {
+        if (response.status === 401) {
+          logout();
+          throw new Error('Your session has expired. Please log in again.');
+        }
         const errorData = await response.json();
         console.error('Illustration session error:', errorData);
         throw new Error(errorData.error?.message || 'Failed to start illustration session');
@@ -144,6 +153,10 @@ export function IllustrationGenerator({ story, childProfile, onClose }: Illustra
       });
 
       if (!response.ok) {
+        if (response.status === 401) {
+          logout();
+          throw new Error('Your session has expired. Please log in again.');
+        }
         throw new Error('Failed to process selection');
       }
 

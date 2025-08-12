@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
-import { getAuthHeaders } from '../lib/jwt-auth';
+import { getAuthHeaders, useAuth } from '../lib/jwt-auth';
 import { IllustrationGrid } from '../components/gallery/IllustrationGrid';
 import { IllustrationDetailModal } from '../components/gallery/IllustrationDetailModal';
 import { Button } from '../components/ui/button';
@@ -9,6 +9,7 @@ import LoadingSpinner from '../components/loading-spinner';
 import type { Illustration } from '../shared/types';
 
 export function Gallery() {
+  const { logout } = useAuth();
   const [selectedIllustration, setSelectedIllustration] = useState<Illustration | null>(null);
   const [filterCanonical, setFilterCanonical] = useState<'all' | 'canonical' | 'variations'>('all');
   const [sortBy, setSortBy] = useState<'newest' | 'oldest'>('newest');
@@ -29,7 +30,12 @@ export function Gallery() {
       });
 
       if (!response.ok) {
-        throw new Error('Failed to fetch illustrations');
+        if (response.status === 401) {
+          // Token expired or invalid - log out user to force fresh login
+          logout();
+          throw new Error('Your session has expired. Please log in again.');
+        }
+        throw new Error(`Failed to fetch illustrations: ${response.status} ${response.statusText}`);
       }
 
       const result = await response.json();
@@ -80,7 +86,13 @@ export function Gallery() {
     return (
       <div className="text-center py-12">
         <div className="text-red-500 mb-2">Failed to load illustrations</div>
-        <p className="text-gray-500">Please try refreshing the page</p>
+        <p className="text-gray-500 mb-4">{error.message}</p>
+        <Button 
+          onClick={() => window.location.reload()}
+          variant="outline"
+        >
+          Try Again
+        </Button>
       </div>
     );
   }
