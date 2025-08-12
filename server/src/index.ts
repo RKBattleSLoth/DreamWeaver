@@ -131,6 +131,19 @@ app.use('/api/illustrations', illustrationRoutes);
 import storyIllustrationRoutes from './routes/story-illustrations.js';
 app.use('/api/story-illustrations', storyIllustrationRoutes);
 
+// API 404 handler - must come after all API routes
+app.use('/api/*', (req, res) => {
+  console.log(`API 404: ${req.method} ${req.path}`);
+  res.status(404).json({
+    success: false,
+    error: { 
+      message: 'API endpoint not found',
+      method: req.method,
+      path: req.path
+    }
+  });
+});
+
 // Serve built client files
 const clientDistDir = path.join(__dirname, '../../client/dist');
 
@@ -140,31 +153,22 @@ if (fs.existsSync(clientDistDir)) {
   app.use(express.static(clientDistDir));
   
   // Serve index.html for client-side routing (but not for API routes)
-  app.get('*', (req, res) => {
-    if (!req.path.startsWith('/api') && !req.path.startsWith('/uploads')) {
-      res.sendFile(path.join(clientDistDir, 'index.html'));
-    } else {
-      res.status(404).json({
-        success: false,
-        error: { message: 'API route not found' }
-      });
+  // IMPORTANT: Only handle GET requests to avoid breaking POST/PUT/DELETE API calls
+  app.get('*', (req, res, next) => {
+    // Skip API and upload routes
+    if (req.path.startsWith('/api') || req.path.startsWith('/uploads')) {
+      return next();
     }
+    res.sendFile(path.join(clientDistDir, 'index.html'));
   });
 } else {
   console.log('Client dist directory not found, API-only mode');
-  // 404 handler for API-only mode
-  app.use('*', (req, res) => {
-    if (req.path.startsWith('/api')) {
-      res.status(404).json({
-        success: false,
-        error: { message: 'API route not found' }
-      });
-    } else {
-      res.status(404).json({
-        success: false,
-        error: { message: 'Frontend not deployed - please access API endpoints directly' }
-      });
-    }
+  // 404 handler for non-API routes in API-only mode
+  app.get('*', (req, res) => {
+    res.status(404).json({
+      success: false,
+      error: { message: 'Frontend not deployed - please access API endpoints directly' }
+    });
   });
 }
 

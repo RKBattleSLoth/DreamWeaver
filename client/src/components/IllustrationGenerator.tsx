@@ -113,9 +113,21 @@ export function IllustrationGenerator({ story, childProfile, onClose }: Illustra
           logout();
           throw new Error('Your session has expired. Please log in again.');
         }
-        const errorData = await response.json();
-        console.error('Illustration session error:', errorData);
-        throw new Error(errorData.error?.message || 'Failed to start illustration session');
+        
+        // Try to parse error response
+        let errorMessage = 'Failed to start illustration session';
+        try {
+          const errorData = await response.json();
+          console.error('Illustration session error:', errorData);
+          if (errorData.error?.message) {
+            errorMessage = errorData.error.message;
+          }
+        } catch (e) {
+          // Response wasn't JSON
+          console.error('Failed to parse error response:', e);
+          errorMessage = `Server error: ${response.status} ${response.statusText}`;
+        }
+        throw new Error(errorMessage);
       }
 
       const result = await response.json();

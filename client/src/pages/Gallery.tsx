@@ -36,7 +36,18 @@ export function Gallery() {
           logout();
           throw new Error('Your session has expired. Please log in again.');
         }
-        throw new Error(`Failed to fetch illustrations: ${response.status} ${response.statusText}`);
+        
+        // Try to parse error response
+        let errorMessage = `Failed to fetch illustrations: ${response.status} ${response.statusText}`;
+        try {
+          const errorData = await response.json();
+          if (errorData.error?.message) {
+            errorMessage = errorData.error.message;
+          }
+        } catch {
+          // Response wasn't JSON, use default error message
+        }
+        throw new Error(errorMessage);
       }
 
       const result = await response.json();
