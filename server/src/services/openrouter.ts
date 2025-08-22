@@ -1,5 +1,10 @@
 import { ChildProfile } from '../../shared/types/index.js';
 import { STORY_LENGTHS } from '../../shared/constants/index.js';
+import { 
+  compileStoryPrinciples, 
+  formatPrinciplesForPrompt,
+  validateStoryStructure 
+} from './invisible-ink-principles.js';
 
 const OPENROUTER_API_URL = 'https://openrouter.ai/api/v1/chat/completions';
 const OPENROUTER_API_KEY = process.env.OPENROUTER_API_KEY?.trim();
@@ -44,19 +49,34 @@ export async function generateStoryWithOpenRouter({
     ? customWordCount 
     : STORY_LENGTHS[storyLength].words;
 
-  // Build the story generation prompt
-  const systemPrompt = `You are a talented children's story writer who creates age-appropriate, engaging, and safe bedtime stories. 
+  // Determine the main character and story focus
+  const isAboutChild = storyAbout === 'child';
+  const mainCharacterName = isAboutChild ? childProfile.name : (customCharacterName || 'the main character');
+
+  // Compile Invisible Ink storytelling principles
+  const storyPrinciples = compileStoryPrinciples(
+    mainCharacterName,
+    theme || 'adventure',
+    childProfile.age || 6,
+    wordCount,
+    targetReadingLevel !== 'beginner' // Include subtext for intermediate/advanced
+  );
+
+  const principlesPrompt = formatPrinciplesForPrompt(storyPrinciples);
+
+  // Build the story generation prompt with Invisible Ink principles
+  const systemPrompt = `You are a master storyteller trained in Brian McDonald's "Invisible Ink" principles of narrative construction. You create children's stories that resonate on multiple levels through careful attention to theme, character arc, and story structure.
+
 Your stories should be:
 - Appropriate for a ${childProfile.age || 6} year old child
 - Written at a ${targetReadingLevel} reading level
 - Safe and positive with ${childProfile.content_safety || 'strict'} content guidelines
-- Approximately ${wordCount} words long
-- Engaging and imaginative with a clear beginning, middle, and end
-- Include a gentle moral or lesson when appropriate`;
+- EXACTLY ${wordCount} words long (count carefully)
+- Structured using the three-act format (Setup 25%, Confrontation 50%, Resolution 25%)
 
-  // Determine the main character and story focus
-  const isAboutChild = storyAbout === 'child';
-  const mainCharacterName = isAboutChild ? childProfile.name : (customCharacterName || 'the main character');
+${principlesPrompt}
+
+Remember: Every element must serve the central theme. Create invisible connections that make the story feel complete and satisfying without being obvious.`;
   
   const userPromptParts = [
     isAboutChild 
@@ -145,6 +165,13 @@ TITLE: [Story Title]
     const title = titleMatch ? titleMatch[1].trim() : 'Untitled Story';
     const content = contentMatch ? contentMatch[1].trim() : storyText;
 
+    // Validate story structure against Invisible Ink principles
+    const validation = validateStoryStructure(content, storyPrinciples);
+    if (!validation.valid) {
+      console.log('Story structure validation feedback:', validation.feedback);
+      // Log feedback but don't fail - the story is still usable
+    }
+
     return {
       title,
       content,
@@ -173,7 +200,20 @@ export async function generateStorySimple(
   // Estimate tokens needed (roughly 1.3 tokens per word for English text, plus title/formatting)
   const estimatedTokens = Math.ceil(targetWordCount * 1.5) + 200;
   
-  const systemPrompt = `You are a talented children's story writer. Create an engaging, age-appropriate bedtime story.`;
+  // Generate basic principles even without a child profile
+  const basicPrinciples = compileStoryPrinciples(
+    'the hero',
+    options.theme || 'adventure',
+    8, // Default age
+    targetWordCount,
+    options.reading_level !== 'beginner'
+  );
+  
+  const principlesPrompt = formatPrinciplesForPrompt(basicPrinciples);
+  
+  const systemPrompt = `You are a master storyteller trained in Brian McDonald's "Invisible Ink" principles. Create an engaging, age-appropriate bedtime story with strong thematic consistency and character development.
+
+${principlesPrompt}`;
   
   const userPrompt = `${prompt}
   
@@ -181,6 +221,7 @@ Requirements:
 - Reading level: ${options.reading_level || 'beginner'}
 - Target word count: EXACTLY ${targetWordCount} words (the story content only, not including title)
 ${options.theme ? `- Theme: ${options.theme}` : ''}
+- Follow three-act structure (Setup 25%, Confrontation 50%, Resolution 25%)
 
 IMPORTANT: The story must be ${targetWordCount} words long. Please count carefully.
 
